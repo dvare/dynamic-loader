@@ -1,5 +1,6 @@
 package org.dvare.dynamic;
 
+import org.dvare.dynamic.compiler.DynamicCompiler;
 import org.junit.Assert;
 import org.junit.Test;
 

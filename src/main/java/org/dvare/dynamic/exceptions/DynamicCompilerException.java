@@ -25,7 +25,6 @@ public class DynamicCompilerException extends Exception {
 
         for (Diagnostic diag : diags) {
             Map<String, Object> diagnostic = new HashMap<>();
-
             diagnostic.put("kind", diag.getKind());
             diagnostic.put("line", diag.getLineNumber() - line + 1);
             diagnostic.put("message", diag.getMessage(Locale.US));
