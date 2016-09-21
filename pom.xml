@@ -4,7 +4,7 @@
 
     <groupId>org.dvare</groupId>
     <artifactId>dynamic-loader</artifactId>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
 
     <description>Library for Loading java code and dependencies at runtime.</description>
     <packaging>jar</packaging>
