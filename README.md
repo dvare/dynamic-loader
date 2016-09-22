@@ -3,20 +3,17 @@ Library for Loading java code and dependencies at runtime.
 
 ## Current version
 
-* The current  version is `1.0-SNAPSHOT` 
+* The current  version is `1.0` 
 
  you need to add the following maven repository in your `pom.xml`:
 
 ```xml
-<repository>
-    <id>davre</id>
-    <url>https://oss.sonatype.org/content/groups/staging/</url>
-</repository>
+
 <dependencies>
         <dependency>
             <groupId>org.dvare</groupId>
             <artifactId>dynamic-loader</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>            
 <dependencies>
 ```

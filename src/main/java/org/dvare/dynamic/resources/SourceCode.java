@@ -31,7 +31,7 @@ public class SourceCode extends SimpleJavaFileObject {
     private String contents = null;
     private String className;
 
-    public SourceCode(String className, String contents) throws Exception {
+    public SourceCode(String className, String contents) {
         super(URI.create("string:///" + className.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);
         this.contents = contents;
         this.className = className;
@@ -42,7 +42,8 @@ public class SourceCode extends SimpleJavaFileObject {
         return contents;
     }
 
-    public String getClassName() {
+    @Override
+    public String getName() {
         return className;
     }
 }

@@ -43,18 +43,28 @@ public class DynamicCompilerException extends Exception {
         line = -1;
     }
 
+    public DynamicCompilerException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public DynamicCompilerException(Throwable cause) {
+        super(cause);
+    }
+
     public List<Map<String, Object>> getErrorList() {
         List<Map<String, Object>> list = new ArrayList<>();
 
-        for (Diagnostic diag : diags) {
-            Map<String, Object> diagnostic = new HashMap<>();
-            diagnostic.put("kind", diag.getKind());
-            diagnostic.put("line", diag.getLineNumber() - line + 1);
-            diagnostic.put("message", diag.getMessage(Locale.US));
+        if (diags != null) {
+            for (Diagnostic diag : diags) {
+                Map<String, Object> diagnostic = new HashMap<>();
+                diagnostic.put("kind", diag.getKind());
+                diagnostic.put("line", diag.getLineNumber() - line + 1);
+                diagnostic.put("message", diag.getMessage(Locale.US));
 
-            list.add(diagnostic);
+                list.add(diagnostic);
+            }
+
         }
-
         return list;
     }
 

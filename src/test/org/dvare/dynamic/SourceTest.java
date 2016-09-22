@@ -27,6 +27,7 @@ import org.dvare.dynamic.compiler.DynamicCompiler;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Map;
 
 public class SourceTest {
@@ -84,5 +85,23 @@ public class SourceTest {
         Class<?> aClass = compiled.get("org.dvare.dynamic.SourceClass");
         Assert.assertNotNull(aClass);
         Assert.assertEquals(1, aClass.getDeclaredMethods().length);
+    }
+
+
+    @Test
+    public void javaFileTest() throws Exception {
+
+
+        DynamicCompiler dynamicCompiler = new DynamicCompiler();
+        dynamicCompiler.addSource("org.dvare.dynamic.JavaFile", new File("/Users/hammad/git/DynamicLoader/src/main/resources/JavaFile.java"));
+        Map<String, Class<?>> compiled = dynamicCompiler.build();
+        Class<?> aClass = compiled.get("org.dvare.dynamic.JavaFile");
+        Assert.assertNotNull(aClass);
+        Assert.assertEquals(1, aClass.getDeclaredMethods().length);
+        Object a = aClass.newInstance();
+        Object result = aClass.getMethod("javaFileTest").invoke(a);
+        System.out.println(result);
+        Assert.assertEquals("javaFileTest", result);
+
     }
 }

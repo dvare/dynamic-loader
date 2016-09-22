@@ -28,12 +28,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 
 public class CompiledCode extends SimpleJavaFileObject {
     private ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-    public CompiledCode(String className) throws Exception {
+    public CompiledCode(String className) throws URISyntaxException {
         super(new URI(className), Kind.CLASS);
     }
 

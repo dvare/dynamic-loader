@@ -30,10 +30,7 @@ import org.dvare.dynamic.resources.DynamicClassLoader;
 import org.dvare.dynamic.resources.DynamicJavaFileManager;
 import org.dvare.dynamic.resources.SourceCode;
 
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.ToolProvider;
+import javax.tools.*;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -43,74 +40,72 @@ import java.util.*;
 public class DynamicCompiler {
     private static final List<String> options = new ArrayList<>(Arrays.asList("-Xlint:unchecked"));
     private static javax.tools.JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
-    DynamicClassLoader dynamicClassLoader;
-    private Map<String, SourceCode> sourceCode = new HashMap<>();
+    private StandardJavaFileManager standardFileManager =
+            javac.getStandardFileManager(null, null, null);
+    private DynamicClassLoader dynamicClassLoader;
+    private Map<String, JavaFileObject> sourceCodes = new HashMap<>();
     private List<URL> jars = new ArrayList<>();
     private boolean separateContext = false;
     private boolean updateContextClassLoader = false;
+
+    public void addSource(String className, String testSourceCode) {
+        sourceCodes.put(className, new SourceCode(className, testSourceCode));
+    }
+
+    public void addSource(String className, File sourceFile) {
+        Iterable<? extends JavaFileObject> compilationUnits = standardFileManager.getJavaFileObjectsFromFiles(Arrays.asList(sourceFile));
+        for (JavaFileObject javaFileObject : compilationUnits) {
+            sourceCodes.put(className, javaFileObject);
+        }
+    }
+
 
     public void addJar(URL url) {
         jars.add(url);
     }
 
-    public void addSource(String className, String testSourceCode)
-            throws Exception {
-        sourceCode.put(className, new SourceCode(className, testSourceCode));
-    }
 
-    public void addSource(String classPackage, String className, String testSourceCode)
-            throws Exception {
-        sourceCode.put(className, new SourceCode(classPackage + "." + className, testSourceCode));
-    }
+    public Map<String, Class<?>> build() throws DynamicCompilerException {
 
-    public Map<String, Class<?>> build() throws Exception {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         if (separateContext) {
             classLoader = new CustomClassLoader().getCustomURLClassLoader();
         }
 
         URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-        if (!jars.isEmpty()) {
-            try {
+
+        try {
+            if (!jars.isEmpty()) {
+
                 for (URL url : jars) {
                     Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
                     method.setAccessible(true);
                     method.invoke(urlClassLoader, new Object[]{url});
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            Method method2 = URLClassLoader.class.getDeclaredMethod("getURLs");
+            method2.setAccessible(true);
+            URL[] urls = (URL[]) method2.invoke((URLClassLoader) classLoader);
+            String classpath = "";
+            for (URL url : urls) {
+                classpath += url + File.pathSeparator;
+            }
+
+            options.addAll(Arrays.asList("-classpath", classpath));
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        Method method2 = URLClassLoader.class.getDeclaredMethod("getURLs");
-        method2.setAccessible(true);
-        URL[] urls = (URL[]) method2.invoke((URLClassLoader) classLoader);
-        String classpath = "";
-        for (URL url : urls) {
-            classpath += url + File.pathSeparator;
-        }
-
-        options.addAll(Arrays.asList("-classpath", classpath));
-
-
-        Collection<SourceCode> compilationUnits = sourceCode.values();
+        Collection<JavaFileObject> compilationUnits = sourceCodes.values();
         List<CompiledCode> compiledCodes = new ArrayList<>();
 
-        for (SourceCode sourceCode : compilationUnits) {
-            compiledCodes.add(new CompiledCode(sourceCode.getClassName()));
-        }
-
-      /*  StandardJavaFileManager stdFileManager =
-                compiler.getStandardFileManager(null, null, null);
-        Iterable<? extends JavaFileObject> compilationUnits = stdFileManager
-                .getJavaFileObjectsFromFiles(filesToCompile);
-
-        Iterable<? extends JavaFileObject> compilationUnits = stdFileManager
-                .getJavaFileObjectsFromStrings(Arrays.asList("MyClass.java"));
-        */
 
         dynamicClassLoader = new DynamicClassLoader(urlClassLoader);
-        DynamicJavaFileManager fileManager = new DynamicJavaFileManager(javac.getStandardFileManager(null, null, null), compiledCodes, dynamicClassLoader);
+        DynamicJavaFileManager fileManager = new DynamicJavaFileManager(standardFileManager, compiledCodes, dynamicClassLoader);
+
+
         DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
         JavaCompiler.CompilationTask task = javac.getTask(null, fileManager, collector, options, null, compilationUnits);
 
@@ -121,7 +116,7 @@ public class DynamicCompiler {
 
         try {
 
-            if (!sourceCode.keySet().isEmpty()) {
+            if (!sourceCodes.keySet().isEmpty()) {
                 boolean result = task.call();
 
                 if (!result || collector.getDiagnostics().size() > 0) {
@@ -130,12 +125,14 @@ public class DynamicCompiler {
             }
 
             Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
-            for (String className : sourceCode.keySet()) {
+            for (String className : sourceCodes.keySet()) {
                 classes.put(className, dynamicClassLoader.loadClass(className));
             }
             return classes;
         } catch (ClassFormatError e) {
-            throw new DynamicCompilerException(collector.getDiagnostics());
+            throw new DynamicCompilerException(e);
+        } catch (ClassNotFoundException e) {
+            throw new DynamicCompilerException(e);
         }
 
 
