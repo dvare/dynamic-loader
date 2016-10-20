@@ -67,7 +67,9 @@ public class DynamicCompiler {
 
     public Map<String, Class<?>> build() throws DynamicCompilerException {
 
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        //ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        ClassLoader classLoader = Thread.currentThread()
+                .getContextClassLoader();
         if (separateContext) {
             classLoader = new CustomClassLoader().getCustomURLClassLoader();
         }
@@ -83,6 +85,7 @@ public class DynamicCompiler {
                     method.invoke(urlClassLoader, new Object[]{url});
                 }
             }
+
             Method method2 = URLClassLoader.class.getDeclaredMethod("getURLs");
             method2.setAccessible(true);
             URL[] urls = (URL[]) method2.invoke((URLClassLoader) classLoader);
