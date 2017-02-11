@@ -4,9 +4,12 @@
 
     <groupId>org.dvare</groupId>
     <artifactId>dynamic-loader</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 
-    <description>Library for Loading java code and dependencies at runtime.</description>
+    <description>Dynamic Loader is in memory java compiler and classpath loader which enables to compile both java file
+        and code string in memory and also provide support to load supportive jars in classpath which need
+        to compile the dynamic code.
+    </description>
     <packaging>jar</packaging>
 
     <name>Dynamic Loader</name>
@@ -16,7 +19,7 @@
         <developer>
             <id>hammadirshad</id>
             <name>Muhammad Hammad</name>
-            <url></url>
+            <url>https://github.com/hammadirshad</url>
             <email>hammadirshad046@gmail.com</email>
             <roles>
                 <role>Developer</role>
@@ -92,6 +95,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -105,11 +109,7 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.7</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
-        </dependency>
+
 
     </dependencies>
 

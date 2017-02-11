@@ -1,11 +1,38 @@
 # Dynamic Loader [![Build Status](https://travis-ci.org/dvare/DynamicLoader.svg?branch=master)](https://travis-ci.org/dvare/DynamicLoader)
-Library for Loading java code and dependencies at runtime.
+Dynamic Loader is In Memory Java Compiler and classpath loader which enables to compile both java file and code string in memory and also provide support to load supportive jars in classpath which need to compile the dynamic code.
+
+## Example
+
+##### In Memory Compilation..
+
+```java
+public class SourceTest {
+
+    @Test
+    public void sourceCodeTest() throws Exception {
+        
+        StringBuilder sourceCode = new StringBuilder();
+        sourceCode.append("package org.dvare.dynamic;\n");
+        sourceCode.append("public class SourceTestClass {\n");
+        sourceCode.append("   public String testMethod() { return \"inside test method\"; }");
+        sourceCode.append("}");
+
+        DynamicCompiler dynamicCompiler = new DynamicCompiler();
+        dynamicCompiler.addSource("org.dvare.dynamic.SourceTestClass", sourceCode.toString());
+        Map<String, Class<?>> compiled = dynamicCompiler.build();
+        Class<?> aClass = compiled.get("org.dvare.dynamic.SourceTestClass");
+        Assert.assertNotNull(aClass);
+        Assert.assertEquals(1, aClass.getDeclaredMethods().length);
+        }
+    }
+```
+
 
 ## Current version
 
-* The current  version is `1.0` 
+* The current stable version is `1.1` : [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dvare/dynamic-loader/badge.svg?style=flat)](http://search.maven.org/#artifactdetails|org.dvare|dynamic-loader|1.1|)
 
- you need to add the following maven repository in your `pom.xml`:
+ Maven dependency:
 
 ```xml
 
@@ -13,7 +40,7 @@ Library for Loading java code and dependencies at runtime.
         <dependency>
             <groupId>org.dvare</groupId>
             <artifactId>dynamic-loader</artifactId>
-            <version>1.0</version>
+            <version>1.1</version>
         </dependency>            
 <dependencies>
 ```

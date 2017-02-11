@@ -35,7 +35,6 @@ public class SourceTest {
     @Test
     public void compile_whenTypical() throws Exception {
         StringBuilder sourceCode = new StringBuilder();
-
         sourceCode.append("package org.dvare.dynamic;\n");
         sourceCode.append("public class SourceClass {\n");
         sourceCode.append("   public String test() { return \"inside test method\"; }");
