@@ -23,27 +23,43 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic.resources;
 
+import java.io.FileOutputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class DynamicClassLoader extends ClassLoader {
+    private static final char PKG_SEPARATOR = '.';
 
+    private static final char DIR_SEPARATOR = '/';
+
+    private static final String CLASS_FILE_SUFFIX = ".class";
     private Map<String, CompiledCode> customCompiledCode = new HashMap<>();
+    private boolean updateClassFile;
 
-    public DynamicClassLoader(ClassLoader parent) {
+    public DynamicClassLoader(ClassLoader parent, boolean updateClassFile) {
         super(parent);
+        this.updateClassFile = updateClassFile;
     }
 
-    public void registerCodes(List<CompiledCode> compiledCodes) {
+    void registerCodes(List<CompiledCode> compiledCodes) {
 
         for (CompiledCode cc : compiledCodes) {
             customCompiledCode.put(cc.getName(), cc);
         }
     }
 
-    public void registerCode(CompiledCode cc) {
+    void registerCode(CompiledCode cc) {
         customCompiledCode.put(cc.getName(), cc);
+    }
+
+
+    public Class<?> getClass(String name)
+            throws ClassNotFoundException {
+        synchronized (getClassLoadingLock(name)) {
+            return findClass(name);
+        }
     }
 
     @Override
@@ -53,6 +69,23 @@ public class DynamicClassLoader extends ClassLoader {
             return super.findClass(name);
         }
         byte[] byteCode = cc.getByteCode();
+        if (updateClassFile) {
+            try {
+                String classFileName = name;
+                classFileName = classFileName.replace(PKG_SEPARATOR, DIR_SEPARATOR);
+                classFileName += CLASS_FILE_SUFFIX;
+                URL ClassFilePath = this.getResource(classFileName);
+                if (ClassFilePath != null) {
+                    FileOutputStream outputStream = new FileOutputStream(ClassFilePath.getFile());
+                    outputStream.write(byteCode);
+                    outputStream.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
         return super.defineClass(name, byteCode, 0, byteCode.length);
     }
 }

@@ -4,11 +4,10 @@
 
     <groupId>org.dvare</groupId>
     <artifactId>dynamic-loader</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
 
-    <description>Dynamic Loader is in memory java compiler and classpath loader which enables to compile both java file
-        and code string in memory and also provide support to load supportive jars in classpath which need
-        to compile the dynamic code.
+    <description>
+        Java In memory Compiler thats enables to compile java file and code string in memory
     </description>
     <packaging>jar</packaging>
 
@@ -60,14 +59,14 @@
 
 
     <scm>
-        <connection>scm:git:git://github.com/dvare/DynamicLoader.git</connection>
-        <developerConnection>scm:git:git://github.com/dvare/DynamicLoader.git</developerConnection>
-        <url>https://github.com/dvare/DynamicLoader.git</url>
+        <connection>scm:git:git://github.com/dvare/dynamic-loader.git</connection>
+        <developerConnection>scm:git:git://github.com/dvare/dynamic-loader.git</developerConnection>
+        <url>https://github.com/dvare/dynamic-loader</url>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/dvare/DynamicLoader/issues</url>
+        <url>https://github.com/dvare/dynamic-loader/issues</url>
     </issueManagement>
 
 

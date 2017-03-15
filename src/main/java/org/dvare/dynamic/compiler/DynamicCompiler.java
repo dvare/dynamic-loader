@@ -40,17 +40,25 @@ import java.net.URLClassLoader;
 import java.util.*;
 
 public class DynamicCompiler {
-    private static final List<String> options = new ArrayList<>(Arrays.asList("-Xlint:unchecked"));
     private static Logger logger = LoggerFactory.getLogger(DynamicCompiler.class);
-    private static javax.tools.JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
-    private StandardJavaFileManager standardFileManager =
-            javac.getStandardFileManager(null, null, null);
+    private final javax.tools.JavaCompiler javac;
+    private final StandardJavaFileManager standardFileManager;
+    private List<String> options;
     private DynamicClassLoader dynamicClassLoader;
     private Map<String, JavaFileObject> sourceCodes = new HashMap<>();
     private List<URL> jars = new ArrayList<>();
     private String classpath = "";
     private boolean separateContext = false;
     private boolean updateContextClassLoader = false;
+    private boolean updateClassFile = true;
+
+
+    public DynamicCompiler() {
+        options = new ArrayList<>(Arrays.asList("-Xlint:unchecked"));
+        javac = ToolProvider.getSystemJavaCompiler();
+        standardFileManager =
+                javac.getStandardFileManager(null, null, null);
+    }
 
     public void addSource(String className, String testSourceCode) {
         sourceCodes.put(className, new SourceCode(className, testSourceCode));
@@ -100,11 +108,11 @@ public class DynamicCompiler {
 
                 Method method2 = URLClassLoader.class.getDeclaredMethod("getURLs");
                 method2.setAccessible(true);
-                URL[] urls = (URL[]) method2.invoke((URLClassLoader) classLoader);
+                URL[] urls = (URL[]) method2.invoke(classLoader);
 
                 if (urls.length == 0) {
 
-                    urls = (URL[]) method2.invoke((URLClassLoader) getClass().getClassLoader());
+                    urls = (URL[]) method2.invoke(getClass().getClassLoader());
                 }
                 for (URL url : urls) {
                     File file = new File(url.getFile());
@@ -125,7 +133,7 @@ public class DynamicCompiler {
 
         }
 
-        dynamicClassLoader = new DynamicClassLoader(classLoader);
+        dynamicClassLoader = new DynamicClassLoader(classLoader, updateClassFile);
         Collection<JavaFileObject> compilationUnits = sourceCodes.values();
         List<CompiledCode> compiledCodes = new ArrayList<>();
 
@@ -152,12 +160,10 @@ public class DynamicCompiler {
 
             Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
             for (String className : sourceCodes.keySet()) {
-                classes.put(className, dynamicClassLoader.loadClass(className));
+                classes.put(className, dynamicClassLoader.getClass(className));
             }
             return classes;
-        } catch (ClassFormatError e) {
-            throw new DynamicCompilerException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (ClassFormatError | ClassNotFoundException e) {
             throw new DynamicCompilerException(e);
         }
 
@@ -180,6 +186,10 @@ public class DynamicCompiler {
 
     public void setUpdateContextClassLoader(boolean updateContextClassLoader) {
         this.updateContextClassLoader = updateContextClassLoader;
+    }
+
+    public void setUpdateClassFile(boolean updateClassFile) {
+        this.updateClassFile = updateClassFile;
     }
 
     public String getClasspath() {

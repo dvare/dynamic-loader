@@ -34,7 +34,7 @@ import java.net.URISyntaxException;
 public class CompiledCode extends SimpleJavaFileObject {
     private ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-    public CompiledCode(String className) throws URISyntaxException {
+    CompiledCode(String className) throws URISyntaxException {
         super(new URI(className), Kind.CLASS);
     }
 
@@ -43,7 +43,7 @@ public class CompiledCode extends SimpleJavaFileObject {
         return baos;
     }
 
-    public byte[] getByteCode() {
+    byte[] getByteCode() {
         return baos.toByteArray();
     }
 }

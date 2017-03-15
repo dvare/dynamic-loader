@@ -98,9 +98,21 @@ public class SourceTest {
         Assert.assertNotNull(aClass);
         Assert.assertEquals(1, aClass.getDeclaredMethods().length);
         Object a = aClass.newInstance();
-        Object result = aClass.getMethod("javaFileTest").invoke(a);
+        Object result = aClass.getMethod("getName").invoke(a);
         System.out.println(result);
-        Assert.assertEquals("javaFileTest", result);
+        Assert.assertEquals("javaFileResource", result);
+
+
+        aClass = Class.forName("org.dvare.dynamic.JavaFile", false, dynamicCompiler.getClassLoader());
+        Assert.assertNotNull(aClass);
+        Assert.assertEquals(1, aClass.getDeclaredMethods().length);
+        a = aClass.newInstance();
+        result = aClass.getMethod("getName").invoke(a);
+        System.out.println(result);
+        Assert.assertEquals("javaFileResource", result);
+
 
     }
+
+
 }
