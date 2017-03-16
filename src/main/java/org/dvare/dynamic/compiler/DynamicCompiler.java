@@ -50,7 +50,7 @@ public class DynamicCompiler {
     private String classpath = "";
     private boolean separateContext = false;
     private boolean updateContextClassLoader = false;
-    private boolean updateClassFile = true;
+    private boolean updateClassFile = false;
 
 
     public DynamicCompiler() {
