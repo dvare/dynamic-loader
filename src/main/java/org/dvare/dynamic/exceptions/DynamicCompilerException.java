@@ -30,7 +30,7 @@ import java.util.*;
 
 public class DynamicCompilerException extends Exception {
 
-    private List<Diagnostic<? extends JavaFileObject>> diags;
+    private List<Diagnostic<? extends JavaFileObject>> diagnostics;
     private int line;
 
     /**
@@ -38,8 +38,9 @@ public class DynamicCompilerException extends Exception {
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.
      */
-    public DynamicCompilerException(List<Diagnostic<? extends JavaFileObject>> diags) {
-        this.diags = diags;
+    public DynamicCompilerException(String message, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+        super(message);
+        this.diagnostics = diagnostics;
         line = -1;
     }
 
@@ -54,8 +55,8 @@ public class DynamicCompilerException extends Exception {
     public List<Map<String, Object>> getErrorList() {
         List<Map<String, Object>> list = new ArrayList<>();
 
-        if (diags != null) {
-            for (Diagnostic diag : diags) {
+        if (diagnostics != null) {
+            for (Diagnostic diag : diagnostics) {
                 Map<String, Object> diagnostic = new HashMap<>();
                 diagnostic.put("kind", diag.getKind());
                 diagnostic.put("line", diag.getLineNumber() - line + 1);

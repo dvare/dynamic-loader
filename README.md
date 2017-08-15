@@ -1,4 +1,4 @@
-# Dynamic Loader [![Build Status](https://travis-ci.org/dvare/DynamicLoader.svg?branch=master)](https://travis-ci.org/dvare/DynamicLoader)
+# Dynamic Loader [![Build Status](https://travis-ci.org/dvare/dynamic-loader.svg?branch=master)](https://travis-ci.org/dvare/dynamic-loader)
 Dynamic Loader is In Memory Java Compiler and classpath loader which enables to compile both java file and code string in memory and also provide support to load supportive jars in classpath which need to compile the dynamic code.
 
 ## Example
@@ -30,7 +30,7 @@ public class SourceTest {
 
 ## Current version
 
-* The current stable version is `1.1` : [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dvare/dynamic-loader/badge.svg?style=flat)](http://search.maven.org/#artifactdetails|org.dvare|dynamic-loader|1.1|)
+* The current stable version is `1.2` : [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dvare/dynamic-loader/badge.svg?style=flat)](http://search.maven.org/#artifactdetails|org.dvare|dynamic-loader|1.2|)[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.dvare/dynamic-loader/badge.svg)](http://www.javadoc.io/doc/org.dvare/dynamic-loader)
 
  Maven dependency:
 
@@ -40,7 +40,7 @@ public class SourceTest {
         <dependency>
             <groupId>org.dvare</groupId>
             <artifactId>dynamic-loader</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
         </dependency>            
 <dependencies>
 ```
