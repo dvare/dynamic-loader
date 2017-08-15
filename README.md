@@ -1,4 +1,4 @@
-# Dynamic Loader [![Build Status](https://travis-ci.org/dvare/dynamic-loader.svg?branch=master)](https://travis-ci.org/dvare/dynamic-loader)
+## Dynamic Loader 
 Dynamic Loader is In Memory Java Compiler and classpath loader which enables to compile both java file and code string in memory and also provide support to load supportive jars in classpath which need to compile the dynamic code.
 
 ## Example
@@ -31,7 +31,18 @@ public class SourceTest {
 ## Current version
 
 * The current stable version is `1.2` : [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dvare/dynamic-loader/badge.svg?style=flat)](http://search.maven.org/#artifactdetails|org.dvare|dynamic-loader|1.2|)[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.dvare/dynamic-loader/badge.svg)](http://www.javadoc.io/doc/org.dvare/dynamic-loader)
+* The current snapshot version is `1.3-SNAPSHOT` : [![Build Status](https://travis-ci.org/dvare/dynamic-loader.svg?branch=master)](https://travis-ci.org/dvare/dynamic-loader)
 
+
+
+In order to use snapshot versions, you need to add the following maven repository in your `pom.xml`:
+
+```xml
+<repository>
+    <id>ossrh</id>
+    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+</repository>
+```
  Maven dependency:
 
 ```xml

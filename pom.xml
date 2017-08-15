@@ -4,7 +4,7 @@
 
     <groupId>org.dvare</groupId>
     <artifactId>dynamic-loader</artifactId>
-    <version>1.2</version>
+    <version>1.3-SNAPSHOT</version>
 
     <description>
         Java In memory Compiler thats enables to compile java file and code string in memory
