@@ -23,50 +23,55 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic.resources;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {
-
+    private static Logger logger = LoggerFactory.getLogger(DynamicJavaFileManager.class);
     private DynamicClassLoader classLoader;
-    private List<CompiledCode> compiledCodes;
+    private List<MemoryByteCode> byteCodes = new ArrayList<>();
 
 
     /**
      * Creates a new instance of ForwardingJavaFileManager.
      *
-     * @param fileManager   delegate to this file manager
-     * @param classLoader
-     * @param compiledCodes
-     * @param classLoader
+     * @param fileManager delegate to this file manager
+     * @param classLoader class Loader
      */
-    public DynamicJavaFileManager(JavaFileManager fileManager, List<CompiledCode> compiledCodes, DynamicClassLoader classLoader) {
+    public DynamicJavaFileManager(JavaFileManager fileManager, DynamicClassLoader classLoader) {
         super(fileManager);
-        this.compiledCodes = compiledCodes;
         this.classLoader = classLoader;
-        this.classLoader.registerCodes(compiledCodes);
+
     }
 
-    @Override
-    public JavaFileObject getJavaFileForOutput(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
 
-        for (CompiledCode compiledCode : compiledCodes) {
-            if (compiledCode.getName().equals(className)) {
-                return compiledCode;
+    @Override
+    public JavaFileObject getJavaFileForOutput(
+            JavaFileManager.Location location, String className, JavaFileObject.Kind kind, FileObject sibling)
+            throws IOException {
+
+        for (MemoryByteCode byteCode : byteCodes) {
+            if (byteCode.getClassName().equals(className)) {
+                return byteCode;
             }
         }
-        //nested class found
+
         try {
-            CompiledCode innerClass = new CompiledCode(className);
-            compiledCodes.add(innerClass);
-            classLoader.registerCode(innerClass); //register in classloader
+            MemoryByteCode innerClass = new MemoryByteCode(className);
+            byteCodes.add(innerClass);
+            classLoader.registerCompiledSource(innerClass);
             return innerClass;
+
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
 

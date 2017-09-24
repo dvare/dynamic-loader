@@ -24,123 +24,127 @@ THE SOFTWARE.*/
 package org.dvare.dynamic.compiler;
 
 import org.dvare.dynamic.exceptions.DynamicCompilerException;
-import org.dvare.dynamic.loader.CustomClassLoader;
-import org.dvare.dynamic.resources.CompiledCode;
 import org.dvare.dynamic.resources.DynamicClassLoader;
 import org.dvare.dynamic.resources.DynamicJavaFileManager;
-import org.dvare.dynamic.resources.SourceCode;
+import org.dvare.dynamic.resources.StringSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.tools.*;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 public class DynamicCompiler {
     private static Logger logger = LoggerFactory.getLogger(DynamicCompiler.class);
-    private final javax.tools.JavaCompiler javac;
+    private final JavaCompiler javaCompiler;
     private final StandardJavaFileManager standardFileManager;
     private List<String> options = new ArrayList<>();
     private DynamicClassLoader dynamicClassLoader;
-    private Map<String, JavaFileObject> sourceCodes = new HashMap<>();
-    private List<URL> jars = new ArrayList<>();
+
+    private Collection<JavaFileObject> compilationUnits = new ArrayList<>();
+
     private ClassLoader classLoader;
     private String classpath = "";
-    private boolean separateContext = false;
-    private boolean updateContextClassLoader = false;
-    private boolean updateClassFile = false;
+    private boolean separateClassLoader = false;
+    private boolean updateClassLoader = false;
+    private boolean writeClassFile = false;
+    private boolean extractJar = false;
+    private StringBuilder classpathBuilder = new StringBuilder();
 
 
     public DynamicCompiler() {
-        javac = ToolProvider.getSystemJavaCompiler();
-        standardFileManager =
-                javac.getStandardFileManager(null, null, null);
-
-        classLoader = Thread.currentThread()
-                .getContextClassLoader();
-        init();
+        this(Thread.currentThread().getContextClassLoader());
     }
 
     public DynamicCompiler(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-        javac = ToolProvider.getSystemJavaCompiler();
-        standardFileManager =
-                javac.getStandardFileManager(null, null, null);
-
-        init();
+        this(classLoader, ToolProvider.getSystemJavaCompiler());
     }
 
-    private void init() {
+    public DynamicCompiler(ClassLoader classLoader, JavaCompiler javaCompiler) {
+        this(classLoader, javaCompiler, false, false);
+    }
+
+    public DynamicCompiler(ClassLoader classLoader, JavaCompiler javaCompiler, boolean separateClassLoader, boolean extractJar) {
+        this.classLoader = classLoader;
+        this.javaCompiler = javaCompiler;
+        standardFileManager = javaCompiler.getStandardFileManager(null, null, null);
+        this.separateClassLoader = separateClassLoader;
+        this.extractJar = extractJar;
 
         options.add("-Xlint:unchecked");
-
-
-        if (separateContext) {
-            classLoader = new CustomClassLoader().getCustomURLClassLoader();
-        }
-
-
-        if (!(classLoader instanceof URLClassLoader)) {
-            classLoader = this.getClass().getClassLoader();
-        }
-
-
         if (classLoader instanceof URLClassLoader) {
-
-            URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-
-            buildClassPath(urlClassLoader);
-            if (!classpath.trim().isEmpty()) {
-                options.addAll(Arrays.asList("-classpath", classpath));
-            }
-
-
+            getClassPath(URLClassLoader.class.cast(classLoader));
         }
     }
 
 
-    public void addSource(String className, String testSourceCode) {
-        sourceCodes.put(className, new SourceCode(className, testSourceCode));
+    public void addSource(String className, String source) {
+        addSource(new StringSource(className, source));
     }
 
 
-    public void addSource(String className, File sourceFile) {
-        Iterable<? extends JavaFileObject> compilationUnits = standardFileManager.getJavaFileObjectsFromFiles(Collections.singletonList(sourceFile));
-        for (JavaFileObject javaFileObject : compilationUnits) {
-            sourceCodes.put(className, javaFileObject);
+    public void addSource(File sourceFile) {
+        Iterable<? extends JavaFileObject> compilationUnitsIterable =
+                standardFileManager.getJavaFileObjectsFromFiles(Collections.singletonList(sourceFile));
+        for (JavaFileObject javaFileObject : compilationUnitsIterable) {
+            addSource(javaFileObject);
+
         }
     }
 
+    public void addSource(JavaFileObject javaFileObject) {
+        compilationUnits.add(javaFileObject);
+    }
 
-    public void addJar(URL url) {
-        jars.add(url);
+    public void addJar(URL url) throws Exception {
+
+        File file = new File(url.getFile());
+        if (file.exists()) {
+            classpath = classpath + file.getAbsolutePath() + File.pathSeparator;
+            logger.debug(file.getAbsolutePath() + File.pathSeparator);
+
+            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+            method.setAccessible(true);
+            method.invoke(classLoader, url);
+        }
+
     }
 
 
     public Map<String, Class<?>> build() throws DynamicCompilerException {
 
 
-        dynamicClassLoader = new DynamicClassLoader(classLoader, updateClassFile);
-        Collection<JavaFileObject> compilationUnits = sourceCodes.values();
-        List<CompiledCode> compiledCodes = new ArrayList<>();
+        if (!classpath.trim().isEmpty()) {
+            options.add("-classpath");
+            options.add(classpath);
+        }
 
-        DynamicJavaFileManager fileManager = new DynamicJavaFileManager(standardFileManager, compiledCodes, dynamicClassLoader);
+        dynamicClassLoader = new DynamicClassLoader(classLoader, writeClassFile, separateClassLoader);
+
+
+        JavaFileManager fileManager = new DynamicJavaFileManager(standardFileManager, dynamicClassLoader);
 
 
         DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
-        JavaCompiler.CompilationTask task = javac.getTask(null, fileManager, collector, options, null, compilationUnits);
+        JavaCompiler.CompilationTask task = javaCompiler.getTask(null, fileManager, collector, options, null, compilationUnits);
 
-
-        if (updateContextClassLoader) {
+        if (updateClassLoader) {
             Thread.currentThread().setContextClassLoader(dynamicClassLoader);
         }
 
         try {
 
-            if (!sourceCodes.keySet().isEmpty()) {
+            if (!compilationUnits.isEmpty()) {
                 boolean result = task.call();
 
                 if (!result || collector.getDiagnostics().size() > 0) {
@@ -148,45 +152,57 @@ public class DynamicCompiler {
                 }
             }
 
-            Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
-            for (String className : sourceCodes.keySet()) {
-                classes.put(className, dynamicClassLoader.getClass(className));
-            }
-            return classes;
+            return dynamicClassLoader.getClasses();
         } catch (ClassFormatError | ClassNotFoundException e) {
             throw new DynamicCompilerException(e);
+        } finally {
+            compilationUnits.clear();
+
         }
 
 
     }
 
 
-    private void buildClassPath(URLClassLoader urlClassLoader) {
+    private void getClassPath(URLClassLoader urlClassLoader) {
         try {
-            if (!jars.isEmpty()) {
 
-                for (URL url : jars) {
-                    Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-                    method.setAccessible(true);
-                    method.invoke(urlClassLoader, url);
+            {
+                URL url = urlClassLoader.findResource("META-INF/MANIFEST.MF");
+                if (url != null) {
+                    Manifest manifest = new Manifest(url.openStream());
+
+                    String classpath = manifest.getMainAttributes().getValue("Class-Path");
+                    if (classpath != null) {
+                        for (String entry : classpath.split(" ")) {
+                            URL entryUrl = new URL(entry);
+                            String decodedPath = URLDecoder.decode(entryUrl.getPath(), "UTF-8");
+                            File file = new File(decodedPath);
+                            if (file.exists()) {
+                                classpathBuilder.append(file.getAbsolutePath()).append(File.pathSeparator);
+                                logger.debug(file.getAbsolutePath() + File.pathSeparator);
+                            }
+                        }
+                    }
                 }
+
             }
-
-            Method method2 = URLClassLoader.class.getDeclaredMethod("getURLs");
-            method2.setAccessible(true);
-            URL[] urls = (URL[]) method2.invoke(urlClassLoader);
-
-            if (urls.length == 0) {
-
-                urls = (URL[]) method2.invoke(getClass().getClassLoader());
-            }
-            StringBuilder classpathBuilder = new StringBuilder();
-            for (URL url : urls) {
-                File file = new File(url.getFile());
-
-                classpathBuilder.append(file.getAbsolutePath()).append(File.pathSeparator);
-
-                logger.debug(file.getAbsolutePath() + File.pathSeparator);
+            if (classpathBuilder.toString().isEmpty()) {
+                ClassLoader c = urlClassLoader;
+                String destDir = null;
+                while (c instanceof URLClassLoader) {
+                    for (URL url : ((URLClassLoader) c).getURLs()) {
+                        String decodedPath = URLDecoder.decode(url.getPath(), "UTF-8");
+                        File file = new File(decodedPath);
+                        if (file.exists()) {
+                            classpathBuilder.append(file.getAbsolutePath()).append(File.pathSeparator);
+                            logger.debug(file.getAbsolutePath() + File.pathSeparator);
+                        } else if (extractJar) {
+                            destDir = extractJar(url, destDir);
+                        }
+                    }
+                    c = c.getParent();
+                }
             }
 
             classpath = classpathBuilder.toString();
@@ -199,23 +215,91 @@ public class DynamicCompiler {
     }
 
 
-    /*Getter and Setters*/
+    private String extractJar(URL url, String destDir) throws IOException {
+        if (destDir == null) {
 
-    public void setSeparateContext(boolean separateContext) {
-        this.separateContext = separateContext;
+            logger.info("Jar Extraction complete ");
+
+            String pathToJar;
+            if (url.getPath().contains("file:")) {
+                pathToJar = url.getPath().substring(5, url.getPath().indexOf(".jar") + 4);
+            } else {
+                pathToJar = url.getPath().substring(0, url.getPath().indexOf(".jar") + 4);
+            }
+
+            File file = new File(pathToJar);
+            JarFile jar = new JarFile(file);
+
+            destDir = file.getParent() + File.separator + file.getName().substring(0, file.getName().indexOf(".jar"));
+
+
+            File destDirFile = new File(destDir);
+            if (!destDirFile.exists()) {
+
+                destDirFile.mkdir();
+
+
+                logger.info("destDir: " + destDir);
+                logger.info("pathToJar: " + pathToJar);
+
+
+                Enumeration enumEntries = jar.entries();
+                while (enumEntries.hasMoreElements()) {
+                    JarEntry jarEntry = (java.util.jar.JarEntry) enumEntries.nextElement();
+                    File f = new File(destDir + File.separator + jarEntry.getName());
+
+                    if (jarEntry.isDirectory()) { // if its a directory, create it
+                        f.mkdir();
+                        continue;
+                    }
+
+                    if (!jarEntry.getName().endsWith(".class") && !jarEntry.getName().endsWith(".jar")) {
+                        continue;
+                    }
+
+                    InputStream is = jar.getInputStream(jarEntry); // get the input stream
+                    FileOutputStream fos = new FileOutputStream(f);
+                    while (is.available() > 0) {  // write contents of 'is' to 'fos'
+                        fos.write(is.read());
+                    }
+                    fos.close();
+                    is.close();
+                }
+                jar.close();
+
+            }
+
+            logger.info("Jar Extraction complete ");
+
+        }
+
+
+        String pathToFile = destDir + url.getPath().substring(url.getPath().indexOf(".jar") + 5,
+                url.getPath().indexOf("!/", url.getPath().indexOf(".jar") + 5));
+
+
+        File file = new File(pathToFile);
+
+        if (file.exists()) {
+            classpathBuilder.append(file.getAbsolutePath()).append(File.pathSeparator);
+            logger.debug(file.getAbsolutePath() + File.pathSeparator);
+        }
+
+        return destDir;
     }
+
+    /*Getter and Setters*/
 
     public ClassLoader getClassLoader() {
         return dynamicClassLoader;
     }
 
-
-    public void setUpdateContextClassLoader(boolean updateContextClassLoader) {
-        this.updateContextClassLoader = updateContextClassLoader;
+    public void setUpdateClassLoader(boolean updateClassLoader) {
+        this.updateClassLoader = updateClassLoader;
     }
 
-    public void setUpdateClassFile(boolean updateClassFile) {
-        this.updateClassFile = updateClassFile;
+    public void setWriteClassFile(boolean writeClassFile) {
+        this.writeClassFile = writeClassFile;
     }
 
     public String getClasspath() {
@@ -225,4 +309,5 @@ public class DynamicCompiler {
     public void setClasspath(String classpath) {
         this.classpath = classpath;
     }
+
 }

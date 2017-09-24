@@ -27,13 +27,12 @@ import org.dvare.dynamic.compiler.DynamicCompiler;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.Map;
 
 public class SourceTest {
 
     @Test
-    public void compile_whenTypical() throws Exception {
+    public void compile_test() throws Exception {
         StringBuilder sourceCode = new StringBuilder();
         sourceCode.append("package org.dvare.dynamic;\n");
         sourceCode.append("public class SourceClass {\n");
@@ -50,66 +49,53 @@ public class SourceTest {
 
 
     @Test
-    public void compile_severalFiles() throws Exception {
-        String cls1 = "public class SourceClass1 { public SourceClass2 getSourceClass2() { return new SourceClass2(); }}";
-        String cls2 = "public class SourceClass2 { public String toString() { return \"SourceClass2\"; }}";
-
+    public void compile_multiple_sources() throws Exception {
         DynamicCompiler compiler = new DynamicCompiler();
-        compiler.addSource("SourceClass1", cls1);
-        compiler.addSource("SourceClass2", cls2);
+
+        String source1 = "public class SourceClass1 { public SourceClass2 getSourceClass2() { return new SourceClass2(); }}";
+        compiler.addSource("SourceClass1", source1);
+
+        String source2 = "public class SourceClass2 { public String toString() { return \"SourceClass2\"; }}";
+        compiler.addSource("SourceClass2", source2);
+
+
         Map<String, Class<?>> compiled = compiler.build();
-        ;
+
         Assert.assertNotNull(compiled.get("SourceClass1"));
         Assert.assertNotNull(compiled.get("SourceClass2"));
 
         Class<?> aClass = compiled.get("SourceClass1");
-        Object a = aClass.newInstance();
-        Assert.assertEquals("SourceClass2", aClass.getMethod("getSourceClass2").invoke(a).toString());
+
+        Object instance = aClass.newInstance();
+        Object result = aClass.getMethod("getSourceClass2").invoke(instance);
+        Assert.assertEquals("SourceClass2", result.toString());
     }
 
 
     @Test
-    public void compile_filesWithInnerClasses() throws Exception {
-        StringBuffer sourceCode = new StringBuffer();
+    public void compile_innerCLass() throws Exception {
+        DynamicCompiler dynamicCompiler = new DynamicCompiler();
 
+        StringBuffer sourceCode = new StringBuffer();
         sourceCode.append("package org.dvare.dynamic;\n");
         sourceCode.append("public class SourceClass {\n");
         sourceCode.append("   private static class InnerSourceClass { int inner; }\n");
         sourceCode.append("   public String hello() { return \"hello\"; }");
         sourceCode.append("}");
 
-        DynamicCompiler dynamicCompiler = new DynamicCompiler();
         dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode.toString());
-        Map<String, Class<?>> compiled = dynamicCompiler.build();
-        Class<?> aClass = compiled.get("org.dvare.dynamic.SourceClass");
+
+        dynamicCompiler.build();
+
+        Class<?> aClass = Class.forName("org.dvare.dynamic.SourceClass",
+                false, dynamicCompiler.getClassLoader());
         Assert.assertNotNull(aClass);
         Assert.assertEquals(1, aClass.getDeclaredMethods().length);
-    }
 
 
-    @Test
-    public void javaFileTest() throws Exception {
-
-
-        DynamicCompiler dynamicCompiler = new DynamicCompiler();
-        dynamicCompiler.addSource("org.dvare.dynamic.JavaFile", new File("/Users/hammad/git/DynamicLoader/src/main/resources/JavaFile.java"));
-        Map<String, Class<?>> compiled = dynamicCompiler.build();
-        Class<?> aClass = compiled.get("org.dvare.dynamic.JavaFile");
-        Assert.assertNotNull(aClass);
-        Assert.assertEquals(1, aClass.getDeclaredMethods().length);
-        Object a = aClass.newInstance();
-        Object result = aClass.getMethod("getName").invoke(a);
-        System.out.println(result);
-        Assert.assertEquals("javaFileResource", result);
-
-
-        aClass = Class.forName("org.dvare.dynamic.JavaFile", false, dynamicCompiler.getClassLoader());
-        Assert.assertNotNull(aClass);
-        Assert.assertEquals(1, aClass.getDeclaredMethods().length);
-        a = aClass.newInstance();
-        result = aClass.getMethod("getName").invoke(a);
-        System.out.println(result);
-        Assert.assertEquals("javaFileResource", result);
+        Class<?> innerClass = Class.forName("org.dvare.dynamic.SourceClass$InnerSourceClass",
+                false, dynamicCompiler.getClassLoader());
+        Assert.assertNotNull(innerClass);
 
 
     }

@@ -23,69 +23,73 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic.resources;
 
+import org.dvare.dynamic.loader.CustomClassLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class DynamicClassLoader extends ClassLoader {
-    private static final char PKG_SEPARATOR = '.';
+    private static Logger logger = LoggerFactory.getLogger(DynamicClassLoader.class);
+    private Map<String, MemoryByteCode> byteCodes = new HashMap<>();
+    private boolean writeClassFile;
 
-    private static final char DIR_SEPARATOR = '/';
-
-    private static final String CLASS_FILE_SUFFIX = ".class";
-    private Map<String, CompiledCode> customCompiledCode = new HashMap<>();
-    private boolean updateClassFile;
-
-    public DynamicClassLoader(ClassLoader parent, boolean updateClassFile) {
-        super(parent);
-        this.updateClassFile = updateClassFile;
+    public DynamicClassLoader(ClassLoader ClassLoader) {
+        this(ClassLoader, false, false);
     }
 
-    void registerCodes(List<CompiledCode> compiledCodes) {
-
-        for (CompiledCode cc : compiledCodes) {
-            customCompiledCode.put(cc.getName(), cc);
-        }
-    }
-
-    void registerCode(CompiledCode cc) {
-        customCompiledCode.put(cc.getName(), cc);
+    public DynamicClassLoader(ClassLoader ClassLoader, boolean separateClassLoader,
+                              boolean writeClassFile) {
+        super(separateClassLoader ? new CustomClassLoader(ClassLoader).getCustomURLClassLoader() : ClassLoader);
+        this.writeClassFile = writeClassFile;
     }
 
 
-    public Class<?> getClass(String name)
-            throws ClassNotFoundException {
-        synchronized (getClassLoadingLock(name)) {
-            return findClass(name);
-        }
+    public void registerCompiledSource(MemoryByteCode byteCode) {
+        byteCodes.put(byteCode.getClassName(), byteCode);
     }
+
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        CompiledCode cc = customCompiledCode.get(name);
-        if (cc == null) {
+        MemoryByteCode byteCode = byteCodes.get(name);
+        if (byteCode == null) {
             return super.findClass(name);
         }
-        byte[] byteCode = cc.getByteCode();
-        if (updateClassFile) {
-            try {
-                String classFileName = name;
-                classFileName = classFileName.replace(PKG_SEPARATOR, DIR_SEPARATOR);
-                classFileName += CLASS_FILE_SUFFIX;
-                URL ClassFilePath = this.getResource(classFileName);
-                if (ClassFilePath != null) {
-                    FileOutputStream outputStream = new FileOutputStream(ClassFilePath.getFile());
-                    outputStream.write(byteCode);
-                    outputStream.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
 
+        if (writeClassFile) {
+            writeClass(name, byteCode.getByteCode());
         }
 
-        return super.defineClass(name, byteCode, 0, byteCode.length);
+        return super.defineClass(name, byteCode.getByteCode(), 0, byteCode.getByteCode().length);
+    }
+
+    private void writeClass(String name, byte[] byteCode) {
+        try {
+            final char PKG_SEPARATOR = '.';
+            final char DIR_SEPARATOR = '/';
+            final String CLASS_FILE_SUFFIX = ".class";
+            String classFileName = name.replace(PKG_SEPARATOR, DIR_SEPARATOR) + CLASS_FILE_SUFFIX;
+            URL ClassFilePath = this.getResource(classFileName);
+            if (ClassFilePath != null) {
+                FileOutputStream outputStream = new FileOutputStream(ClassFilePath.getFile());
+                outputStream.write(byteCode);
+                outputStream.close();
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
+    }
+
+    public Map<String, Class<?>> getClasses() throws ClassNotFoundException {
+        Map<String, Class<?>> classes = new HashMap<>();
+        for (MemoryByteCode byteCode : byteCodes.values()) {
+            classes.put(byteCode.getClassName(), findClass(byteCode.getClassName()));
+        }
+        return classes;
     }
 }

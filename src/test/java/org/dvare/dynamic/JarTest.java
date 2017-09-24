@@ -35,8 +35,6 @@ public class JarTest {
 
 
             DynamicCompiler dynamicCompiler = new DynamicCompiler();
-            dynamicCompiler.setSeparateContext(true);
-            dynamicCompiler.setUpdateContextClassLoader(false);
 
             dynamicCompiler.addJar(getClass().getClassLoader().getResource("commons-math3.jar"));
             dynamicCompiler.build();
@@ -47,7 +45,7 @@ public class JarTest {
 
 
         } catch (DynamicCompilerException e) {
-            System.out.println(e.getErrorList());
+            System.out.println(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,22 +56,20 @@ public class JarTest {
     @Test
     public void DynamicJarCodeTest() throws Exception {
         try {
-            StringBuilder sourceCode = new StringBuilder();
-            sourceCode.append("package org.dvare.dynamic;\n");
-            sourceCode.append("import org.apache.commons.math3.Field;\n");
-            sourceCode.append("public class SourceClass {\n");
-            sourceCode.append("   public String test() { \n");
-            sourceCode.append("   return \"inside test method\";\n");
-            sourceCode.append("   }\n");
-            sourceCode.append("}");
+            String sourceCode = "package org.dvare.dynamic;\n" +
+                    "import org.apache.commons.math3.Field;\n" +
+                    "public class SourceClass {\n" +
+                    "   public String test() { \n" +
+                    "   return \"inside test method\";\n" +
+                    "   }\n" +
+                    "}";
 
 
             DynamicCompiler dynamicCompiler = new DynamicCompiler();
-            dynamicCompiler.setSeparateContext(true);
-            dynamicCompiler.setUpdateContextClassLoader(false);
+
 
             dynamicCompiler.addJar(getClass().getClassLoader().getResource("commons-math3.jar"));
-            dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode.toString());
+            dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode);
             dynamicCompiler.build();
 
             Class aClass = Class.forName("org.dvare.dynamic.SourceClass", false, dynamicCompiler.getClassLoader());
@@ -81,7 +77,7 @@ public class JarTest {
 
 
         } catch (DynamicCompilerException e) {
-            System.out.println(e.getErrorList());
+            System.out.println(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }

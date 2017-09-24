@@ -27,11 +27,11 @@ import javax.tools.SimpleJavaFileObject;
 import java.io.IOException;
 import java.net.URI;
 
-public class SourceCode extends SimpleJavaFileObject {
+public class StringSource extends SimpleJavaFileObject {
     private String contents = null;
     private String className;
 
-    public SourceCode(String className, String contents) {
+    public StringSource(String className, String contents) {
         super(URI.create("string:///" + className.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);
         this.contents = contents;
         this.className = className;
@@ -42,8 +42,7 @@ public class SourceCode extends SimpleJavaFileObject {
         return contents;
     }
 
-    @Override
-    public String getName() {
+    public String getClassName() {
         return className;
     }
 }

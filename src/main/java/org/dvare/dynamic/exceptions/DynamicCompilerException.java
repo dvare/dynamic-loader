@@ -52,7 +52,7 @@ public class DynamicCompilerException extends Exception {
         super(cause);
     }
 
-    public List<Map<String, Object>> getErrorList() {
+    private List<Map<String, Object>> getErrorList() {
         List<Map<String, Object>> list = new ArrayList<>();
 
         if (diagnostics != null) {
@@ -69,7 +69,36 @@ public class DynamicCompilerException extends Exception {
         return list;
     }
 
-    public void setInsertLine(int line) {
-        this.line = line;
+
+    private String getErrors() {
+        StringBuilder errors = new StringBuilder();
+
+        for (Map<String, Object> entry : getErrorList()) {
+
+
+            for (String key : entry.keySet()) {
+
+                Object value = entry.get(key);
+                if (value != null && !value.toString().isEmpty()) {
+                    errors.append(key);
+                    errors.append(": ");
+                    errors.append(value);
+                }
+                errors.append(" , ");
+            }
+
+            errors.append("\n");
+        }
+
+
+        return errors.toString();
+
     }
+
+    @Override
+    public String getMessage() {
+        return super.getMessage() + "\n" + getErrors();
+    }
+
+
 }

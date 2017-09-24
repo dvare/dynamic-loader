@@ -30,13 +30,12 @@ import java.net.URLClassLoader;
 public class CustomClassLoader extends ClassLoader {
     private CustomURLClassLoader customURLClassLoader;
 
-    public CustomClassLoader() {
-        super(Thread.currentThread().getContextClassLoader());
-
+    public CustomClassLoader(ClassLoader classLoader) {
+        super(classLoader);
         try {
             Method method2 = URLClassLoader.class.getDeclaredMethod("getURLs");
             method2.setAccessible(true);
-            URL[] urls = (URL[]) method2.invoke((URLClassLoader) Thread.currentThread().getContextClassLoader());
+            URL[] urls = (URL[]) method2.invoke(classLoader);
             customURLClassLoader = new CustomURLClassLoader(urls, new DetectClass(this.getParent()));
         } catch (Exception e) {
             e.printStackTrace();
