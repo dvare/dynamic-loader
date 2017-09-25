@@ -55,9 +55,8 @@ public class DynamicCompiler {
 
     private ClassLoader classLoader;
     private String classpath = "";
-    private boolean separateClassLoader = false;
+
     private boolean updateClassLoader = false;
-    private boolean writeClassFile = false;
     private boolean extractJar = false;
     private StringBuilder classpathBuilder = new StringBuilder();
 
@@ -71,20 +70,25 @@ public class DynamicCompiler {
     }
 
     public DynamicCompiler(ClassLoader classLoader, JavaCompiler javaCompiler) {
-        this(classLoader, javaCompiler, false, false);
+        this(classLoader, javaCompiler, false, false, false);
     }
 
-    public DynamicCompiler(ClassLoader classLoader, JavaCompiler javaCompiler, boolean separateClassLoader, boolean extractJar) {
+    public DynamicCompiler(ClassLoader classLoader, JavaCompiler javaCompiler,
+                           boolean writeClassFile, boolean separateClassLoader, boolean extractJar) {
+
         this.classLoader = classLoader;
         this.javaCompiler = javaCompiler;
         standardFileManager = javaCompiler.getStandardFileManager(null, null, null);
-        this.separateClassLoader = separateClassLoader;
+
         this.extractJar = extractJar;
 
         options.add("-Xlint:unchecked");
         if (classLoader instanceof URLClassLoader) {
             getClassPath(URLClassLoader.class.cast(classLoader));
         }
+
+        dynamicClassLoader = new DynamicClassLoader(classLoader, writeClassFile, separateClassLoader);
+
     }
 
 
@@ -113,9 +117,11 @@ public class DynamicCompiler {
             classpath = classpath + file.getAbsolutePath() + File.pathSeparator;
             logger.debug(file.getAbsolutePath() + File.pathSeparator);
 
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            method.setAccessible(true);
-            method.invoke(classLoader, url);
+            if (classLoader instanceof URLClassLoader) {
+                Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+                method.setAccessible(true);
+                method.invoke(classLoader, url);
+            }
         }
 
     }
@@ -128,8 +134,6 @@ public class DynamicCompiler {
             options.add("-classpath");
             options.add(classpath);
         }
-
-        dynamicClassLoader = new DynamicClassLoader(classLoader, writeClassFile, separateClassLoader);
 
 
         JavaFileManager fileManager = new DynamicJavaFileManager(standardFileManager, dynamicClassLoader);
@@ -296,10 +300,6 @@ public class DynamicCompiler {
 
     public void setUpdateClassLoader(boolean updateClassLoader) {
         this.updateClassLoader = updateClassLoader;
-    }
-
-    public void setWriteClassFile(boolean writeClassFile) {
-        this.writeClassFile = writeClassFile;
     }
 
     public String getClasspath() {
