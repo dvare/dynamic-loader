@@ -31,42 +31,29 @@ import java.util.*;
 public class DynamicCompilerException extends Exception {
 
     private List<Diagnostic<? extends JavaFileObject>> diagnostics;
-    private int line;
 
-    /**
-     * Constructs a new exception with {@code null} as its detail message.
-     * The cause is not initialized, and may subsequently be initialized by a
-     * call to {@link #initCause}.
-     */
     public DynamicCompilerException(String message, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
         super(message);
         this.diagnostics = diagnostics;
-        line = -1;
     }
 
-    public DynamicCompilerException(String message, Throwable cause) {
-        super(message, cause);
-    }
 
     public DynamicCompilerException(Throwable cause) {
         super(cause);
     }
 
     private List<Map<String, Object>> getErrorList() {
-        List<Map<String, Object>> list = new ArrayList<>();
-
+        List<Map<String, Object>> messages = new ArrayList<>();
         if (diagnostics != null) {
-            for (Diagnostic diag : diagnostics) {
-                Map<String, Object> diagnostic = new HashMap<>();
-                diagnostic.put("kind", diag.getKind());
-                diagnostic.put("line", diag.getLineNumber() - line + 1);
-                diagnostic.put("message", diag.getMessage(Locale.US));
-
-                list.add(diagnostic);
+            for (Diagnostic diagnostic : diagnostics) {
+                Map<String, Object> message = new HashMap<>();
+                message.put("line", diagnostic.getLineNumber());
+                message.put("message", diagnostic.getMessage(Locale.US));
+                messages.add(message);
             }
 
         }
-        return list;
+        return messages;
     }
 
 
