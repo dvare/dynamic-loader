@@ -70,6 +70,10 @@ public class DynamicCompiler {
     public DynamicCompiler(ClassLoader classLoader, JavaCompiler javaCompiler,
                            boolean writeClassFile, boolean separateClassLoader, boolean extractJar) {
 
+        if (javaCompiler == null) {
+            throw new RuntimeException("Java Compiler not found. Install JDK on machine");
+        }
+
         this.classLoader = classLoader;
         this.javaCompiler = javaCompiler;
         standardFileManager = javaCompiler.getStandardFileManager(null, null, null);

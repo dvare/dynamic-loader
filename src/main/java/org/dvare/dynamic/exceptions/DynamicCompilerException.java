@@ -37,6 +37,9 @@ public class DynamicCompilerException extends Exception {
         this.diagnostics = diagnostics;
     }
 
+    public DynamicCompilerException(String message) {
+        super(message);
+    }
 
     public DynamicCompilerException(Throwable cause) {
         super(cause);
