@@ -24,6 +24,20 @@ public class ClassPathBuilder {
         this.extractJar = extractJar;
     }
 
+    public String getClassPath(ClassLoader classLoader) {
+
+        try {
+            Enumeration<URL> resources = classLoader.getResources("/");
+            while (resources.hasMoreElements()) {
+                URL url = resources.nextElement();
+                classpathBuilder.append(url.getFile()).append(File.pathSeparator);
+            }
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return classpathBuilder.toString();
+    }
 
     public String getClassPath(URLClassLoader urlClassLoader) {
         try {
@@ -72,7 +86,6 @@ public class ClassPathBuilder {
         }
         return classpathBuilder.toString();
     }
-
 
     private String extractJar(URL url, String destDir) throws IOException {
         if (destDir == null) {

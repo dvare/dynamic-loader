@@ -71,7 +71,7 @@ public class DynamicCompiler {
                            boolean writeClassFile, boolean separateClassLoader, boolean extractJar) {
 
         if (javaCompiler == null) {
-            throw new RuntimeException("Java Compiler not found. Install JDK on machine");
+            throw new RuntimeException("Java Compiler not found. JDK install is required");
         }
 
         this.classLoader = classLoader;
@@ -83,6 +83,8 @@ public class DynamicCompiler {
         options.add("-Xlint:unchecked");
         if (classLoader instanceof URLClassLoader) {
             classpath = new ClassPathBuilder(extractJar).getClassPath(URLClassLoader.class.cast(classLoader));
+        } else {
+            classpath = new ClassPathBuilder(extractJar).getClassPath(classLoader);
         }
 
         dynamicClassLoader = new DynamicClassLoader(classLoader, writeClassFile, separateClassLoader);
