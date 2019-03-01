@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2016 Muhammad Hammad
+Copyright (c) 2019 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,13 +22,16 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dvare.dynamic.compiler.DynamicCompiler;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Map;
 
+@Slf4j
 public class JavaFileTest {
 
 
@@ -36,8 +39,9 @@ public class JavaFileTest {
     public void javaFileTest() throws Exception {
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
-        dynamicCompiler.addSource(
-                new File(getClass().getClassLoader().getResource("JavaFile.java").getPath()));
+        URL url = getClass().getClassLoader().getResource("JavaFile.java");
+        Assert.assertNotNull(url);
+        dynamicCompiler.addSource(new File(url.getPath()));
 
         Map<String, Class<?>> compiled = dynamicCompiler.build();
         Class<?> aClass = compiled.get("org.dvare.dynamic.JavaFile");
@@ -51,15 +55,16 @@ public class JavaFileTest {
     public void javaFile_Compiled() throws Exception {
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
-        dynamicCompiler.addSource(
-                new File(getClass().getClassLoader().getResource("JavaFile.java").getPath()));
+        URL url = getClass().getClassLoader().getResource("JavaFile.java");
+        Assert.assertNotNull(url);
+        dynamicCompiler.addSource(new File(url.getPath()));
         Map<String, Class<?>> compiled = dynamicCompiler.build();
         Class<?> aClass = compiled.get("org.dvare.dynamic.JavaFile");
 
 
         Object instance = aClass.newInstance();
         Object result = aClass.getMethod("getName").invoke(instance);
-        System.out.println(result);
+        log.debug(result.toString());
         Assert.assertEquals("InMemoryCompiled", result);
 
 
@@ -69,15 +74,16 @@ public class JavaFileTest {
     public void javaFile_ClassForName() throws Exception {
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
-        dynamicCompiler.addSource(
-                new File(getClass().getClassLoader().getResource("JavaFile.java").getPath()));
+        URL url = getClass().getClassLoader().getResource("JavaFile.java");
+        Assert.assertNotNull(url);
+        dynamicCompiler.addSource(new File(url.getPath()));
         dynamicCompiler.build();
         Class<?> aClass = Class.forName("org.dvare.dynamic.JavaFile",
                 false, dynamicCompiler.getClassLoader());
 
         Object instance = aClass.newInstance();
         Object result = aClass.getMethod("getName").invoke(instance);
-        System.out.println(result);
+        log.debug(result.toString());
         Assert.assertEquals("InMemoryCompiled", result);
 
 

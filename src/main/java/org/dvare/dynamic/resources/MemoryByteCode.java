@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2016 Muhammad Hammad
+Copyright (c) 2019 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,8 @@ package org.dvare.dynamic.resources;
 
 import javax.tools.SimpleJavaFileObject;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 
 public class MemoryByteCode extends SimpleJavaFileObject {
@@ -38,19 +36,18 @@ public class MemoryByteCode extends SimpleJavaFileObject {
 
     private ByteArrayOutputStream byteArrayOutputStream;
 
-    public MemoryByteCode(String className) throws URISyntaxException {
+    MemoryByteCode(String className) {
         super(URI.create("byte:///" + className.replace(PKG_SEPARATOR, DIR_SEPARATOR)
                 + Kind.CLASS.extension), Kind.CLASS);
     }
 
-    public MemoryByteCode(String className, ByteArrayOutputStream byteArrayOutputStream)
-            throws URISyntaxException {
+    public MemoryByteCode(String className, ByteArrayOutputStream byteArrayOutputStream) {
         this(className);
         this.byteArrayOutputStream = byteArrayOutputStream;
     }
 
     @Override
-    public OutputStream openOutputStream() throws IOException {
+    public OutputStream openOutputStream() {
         if (byteArrayOutputStream == null) {
             byteArrayOutputStream = new ByteArrayOutputStream();
         }

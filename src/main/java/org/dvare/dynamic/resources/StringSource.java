@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2016 Muhammad Hammad
+Copyright (c) 2019 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@ THE SOFTWARE.*/
 
 
 package org.dvare.dynamic.resources;
+
 
 import javax.tools.SimpleJavaFileObject;
 import java.io.IOException;

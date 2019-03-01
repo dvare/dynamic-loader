@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2016 Muhammad Hammad
+Copyright (c) 2019 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,64 +23,91 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dvare.dynamic.compiler.DynamicCompiler;
-import org.dvare.dynamic.exceptions.DynamicCompilerException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.URL;
+
+@Slf4j
 public class JarTest {
     @Test
     public void DynamicJarTest() throws Exception {
-        try {
 
+        DynamicCompiler dynamicCompiler = new DynamicCompiler();
+        URL url = getClass().getClassLoader().getResource("jar_test_file.jar");
+        Assert.assertNotNull(url);
+        dynamicCompiler.addJar(url);
+        dynamicCompiler.build();
 
-            DynamicCompiler dynamicCompiler = new DynamicCompiler();
+        Class aClass = Class.forName("org.dvare.dynamic.jar.Test", false, dynamicCompiler.getClassLoader());
 
-            dynamicCompiler.addJar(getClass().getClassLoader().getResource("commons-math3.jar"));
-            dynamicCompiler.build();
-
-            Class aClass = Class.forName("org.apache.commons.math3.Field", false, dynamicCompiler.getClassLoader());
-
-            Assert.assertNotNull(aClass);
-
-
-        } catch (DynamicCompilerException e) {
-            System.out.println(e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Assert.assertNotNull(aClass);
 
     }
 
 
     @Test
     public void DynamicJarCodeTest() throws Exception {
-        try {
-            String sourceCode = "package org.dvare.dynamic;\n" +
-                    "import org.apache.commons.math3.Field;\n" +
-                    "public class SourceClass {\n" +
-                    "   public String test() { \n" +
-                    "   return \"inside test method\";\n" +
-                    "   }\n" +
-                    "}";
+        String sourceCode = "package org.dvare.dynamic;" +
+                "import org.dvare.dynamic.jar.Test;" +
+                "public class SourceClass {" +
+                "   public String test() { " +
+                "   return new Test().print();" +
+                "   }" +
+                "}";
 
 
-            DynamicCompiler dynamicCompiler = new DynamicCompiler();
+        DynamicCompiler dynamicCompiler = new DynamicCompiler();
 
+        URL url = getClass().getClassLoader().getResource("jar_test_file.jar");
+        Assert.assertNotNull(url);
+        dynamicCompiler.addJar(url);
+        dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode);
+        dynamicCompiler.build();
 
-            dynamicCompiler.addJar(getClass().getClassLoader().getResource("commons-math3.jar"));
-            dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode);
-            dynamicCompiler.build();
-
-            Class aClass = Class.forName("org.dvare.dynamic.SourceClass", false, dynamicCompiler.getClassLoader());
-            Assert.assertNotNull(aClass);
-
-
-        } catch (DynamicCompilerException e) {
-            System.out.println(e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Class aClass = Class.forName("org.dvare.dynamic.SourceClass", false, dynamicCompiler.getClassLoader());
+        Assert.assertNotNull(aClass);
 
     }
+
+
+    @Test
+    public void DynamicJarCodeTestPrint() throws Exception {
+        String sourceCode = "package org.dvare.dynamic;" +
+                "import org.dvare.dynamic.jar.Test;" +
+                "public class SourceClass {" +
+                "   public String test() { " +
+                "   return new Test().print();" +
+                "   }" +
+                "   public String test(String name) { " +
+                "   return new Test().print(name);" +
+                "   }" +
+                "}";
+
+        DynamicCompiler dynamicCompiler = new DynamicCompiler();
+
+        URL url = getClass().getClassLoader().getResource("jar_test_file.jar");
+        Assert.assertNotNull(url);
+        dynamicCompiler.addJar(url);
+
+        dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode);
+        dynamicCompiler.build();
+
+        Class aClass = Class.forName("org.dvare.dynamic.SourceClass", false, dynamicCompiler.getClassLoader());
+        Assert.assertNotNull(aClass);
+
+        Object instance = aClass.newInstance();
+        Object result = aClass.getMethod("test").invoke(instance);
+        log.debug(result.toString());
+        Assert.assertEquals("Inside Jar with parameter ", result);
+
+        result = aClass.getMethod("test", String.class).invoke(instance, "test");
+        log.debug(result.toString());
+        Assert.assertEquals("Inside Jar with parameter test", result);
+
+    }
+
+
 }

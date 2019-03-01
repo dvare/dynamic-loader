@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2016 Muhammad Hammad
+Copyright (c) 2019 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,14 +33,13 @@ public class SourceTest {
 
     @Test
     public void compile_test() throws Exception {
-        StringBuilder sourceCode = new StringBuilder();
-        sourceCode.append("package org.dvare.dynamic;\n");
-        sourceCode.append("public class SourceClass {\n");
-        sourceCode.append("   public String test() { return \"inside test method\"; }");
-        sourceCode.append("}");
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
-        dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode.toString());
+        String sourceCode = "package org.dvare.dynamic;" +
+                "public class SourceClass {" +
+                "   public String test() { return \"inside test method\"; }" +
+                "}";
+        dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode);
         Map<String, Class<?>> compiled = dynamicCompiler.build();
         Class<?> aClass = compiled.get("org.dvare.dynamic.SourceClass");
         Assert.assertNotNull(aClass);
@@ -76,14 +75,12 @@ public class SourceTest {
     public void compile_innerCLass() throws Exception {
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
 
-        StringBuffer sourceCode = new StringBuffer();
-        sourceCode.append("package org.dvare.dynamic;\n");
-        sourceCode.append("public class SourceClass {\n");
-        sourceCode.append("   private static class InnerSourceClass { int inner; }\n");
-        sourceCode.append("   public String hello() { return \"hello\"; }");
-        sourceCode.append("}");
-
-        dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode.toString());
+        String sourceCode = "package org.dvare.dynamic;" +
+                "public class SourceClass {" +
+                "   private static class InnerSourceClass { int inner; }" +
+                "   public String hello() { return \"hello\"; }" +
+                "}";
+        dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode);
 
         dynamicCompiler.build();
 

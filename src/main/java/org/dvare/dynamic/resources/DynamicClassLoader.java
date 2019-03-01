@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2016 Muhammad Hammad
+Copyright (c) 2019 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,27 +23,22 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic.resources;
 
-import org.dvare.dynamic.loader.CustomClassLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+import javax.tools.JavaFileObject;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class DynamicClassLoader extends ClassLoader {
-    private static Logger logger = LoggerFactory.getLogger(DynamicClassLoader.class);
+    private final Map<LocationAndKind, Map<String, JavaFileObject>> ramFileSystem = new HashMap<>();
     private Map<String, MemoryByteCode> byteCodes = new HashMap<>();
     private boolean writeClassFile;
 
-    public DynamicClassLoader(ClassLoader ClassLoader) {
-        this(ClassLoader, false, false);
-    }
-
-    public DynamicClassLoader(ClassLoader ClassLoader, boolean separateClassLoader,
-                              boolean writeClassFile) {
-        super(separateClassLoader ? new CustomClassLoader(ClassLoader).getCustomURLClassLoader() : ClassLoader);
+    public DynamicClassLoader(ClassLoader classLoader, boolean writeClassFile) {
+        super(classLoader);
         this.writeClassFile = writeClassFile;
     }
 
@@ -80,7 +75,7 @@ public class DynamicClassLoader extends ClassLoader {
                 outputStream.close();
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
     }
@@ -91,5 +86,10 @@ public class DynamicClassLoader extends ClassLoader {
             classes.put(byteCode.getClassName(), findClass(byteCode.getClassName()));
         }
         return classes;
+    }
+
+
+    public Map<LocationAndKind, Map<String, JavaFileObject>> getRamFileSystem() {
+        return ramFileSystem;
     }
 }

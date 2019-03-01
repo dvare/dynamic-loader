@@ -31,7 +31,7 @@ public class SourceTest {
 ## Current version
 
 * The current stable version is `1.3` : [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dvare/dynamic-loader/badge.svg?style=flat)](http://search.maven.org/#artifactdetails|org.dvare|dynamic-loader|1.3|)[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.dvare/dynamic-loader/badge.svg)](http://www.javadoc.io/doc/org.dvare/dynamic-loader)
-* The current snapshot version is `1.4-SNAPSHOT` : [![Build Status](https://travis-ci.org/dvare/dynamic-loader.svg?branch=master)](https://travis-ci.org/dvare/dynamic-loader)
+* The current snapshot version is `2.0-SNAPSHOT` : [![Build Status](https://travis-ci.org/dvare/dynamic-loader.svg?branch=master)](https://travis-ci.org/dvare/dynamic-loader)
 
 
 
@@ -62,7 +62,7 @@ Dynamic Loader is released under the [![MIT license](http://img.shields.io/badge
 ```
 The MIT License (MIT)
 
-Copyright (c) 2016 Muhammad Hammad
+Copyright (c) 2019 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2016 Muhammad Hammad
+Copyright (c) 2019 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,40 +23,29 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic.resources;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.tools.FileObject;
-import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {
-    private static Logger logger = LoggerFactory.getLogger(DynamicJavaFileManager.class);
+@Slf4j
+public class DynamicJavaFileManager extends MemoryFileManager {
+
     private DynamicClassLoader classLoader;
     private List<MemoryByteCode> byteCodes = new ArrayList<>();
 
-
-    /**
-     * Creates a new instance of ForwardingJavaFileManager.
-     *
-     * @param fileManager delegate to this file manager
-     * @param classLoader class Loader
-     */
     public DynamicJavaFileManager(JavaFileManager fileManager, DynamicClassLoader classLoader) {
-        super(fileManager);
+        super(fileManager, classLoader);
         this.classLoader = classLoader;
 
     }
 
 
     @Override
-    public JavaFileObject getJavaFileForOutput(
-            JavaFileManager.Location location, String className, JavaFileObject.Kind kind, FileObject sibling)
-            throws IOException {
+    public JavaFileObject getJavaFileForOutput(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, FileObject sibling) {
 
         for (MemoryByteCode byteCode : byteCodes) {
             if (byteCode.getClassName().equals(className)) {
@@ -71,7 +60,7 @@ public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileMa
             return innerClass;
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
 

@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2016 Muhammad Hammad
+Copyright (c) 2019 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +23,12 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic.compiler;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dvare.dynamic.exceptions.DynamicCompilerException;
 import org.dvare.dynamic.loader.ClassPathBuilder;
 import org.dvare.dynamic.resources.DynamicClassLoader;
 import org.dvare.dynamic.resources.DynamicJavaFileManager;
 import org.dvare.dynamic.resources.StringSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.tools.*;
 import java.io.File;
@@ -38,8 +37,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
+@Slf4j
 public class DynamicCompiler {
-    private static Logger logger = LoggerFactory.getLogger(DynamicCompiler.class);
     private final JavaCompiler javaCompiler;
     private final StandardJavaFileManager standardFileManager;
     private List<String> options = new ArrayList<>();
@@ -51,10 +50,6 @@ public class DynamicCompiler {
     private ClassLoader classLoader;
     private String classpath = "";
 
-    private boolean updateClassLoader = false;
-    private boolean extractJar = false;
-
-
     public DynamicCompiler() {
         this(Thread.currentThread().getContextClassLoader());
     }
@@ -64,38 +59,34 @@ public class DynamicCompiler {
     }
 
     public DynamicCompiler(ClassLoader classLoader, JavaCompiler javaCompiler) {
-        this(classLoader, javaCompiler, false, false, false);
+        this(classLoader, javaCompiler, false);
     }
 
-    public DynamicCompiler(ClassLoader classLoader, JavaCompiler javaCompiler,
-                           boolean writeClassFile, boolean separateClassLoader, boolean extractJar) {
+    public DynamicCompiler(ClassLoader classLoader, JavaCompiler javaCompiler, boolean writeClassFile) {
 
         if (javaCompiler == null) {
-            throw new RuntimeException("Java Compiler not found. JDK install is required");
+            throw new RuntimeException("Java Compiler not found. JDK is required");
         }
 
         this.classLoader = classLoader;
         this.javaCompiler = javaCompiler;
         standardFileManager = javaCompiler.getStandardFileManager(null, null, null);
 
-        this.extractJar = extractJar;
 
         options.add("-Xlint:unchecked");
         if (classLoader instanceof URLClassLoader) {
-            classpath = new ClassPathBuilder(extractJar).getClassPath(URLClassLoader.class.cast(classLoader));
+            classpath = new ClassPathBuilder().getClassPath((URLClassLoader) classLoader);
         } else {
-            classpath = new ClassPathBuilder(extractJar).getClassPath(classLoader);
+            classpath = new ClassPathBuilder().getClassPath(classLoader);
         }
 
-        dynamicClassLoader = new DynamicClassLoader(classLoader, writeClassFile, separateClassLoader);
+        dynamicClassLoader = new DynamicClassLoader(classLoader, writeClassFile);
 
     }
-
 
     public void addSource(String className, String source) {
         addSource(new StringSource(className, source));
     }
-
 
     public void addSource(File sourceFile) {
         Iterable<? extends JavaFileObject> compilationUnitsIterable =
@@ -111,16 +102,22 @@ public class DynamicCompiler {
     }
 
     public void addJar(URL url) throws Exception {
-
+        if (url == null) {
+            return;
+        }
         File file = new File(url.getFile());
+        addJar(file);
+    }
+
+    public void addJar(File file) throws Exception {
         if (file.exists()) {
             classpath = classpath + file.getAbsolutePath() + File.pathSeparator;
-            logger.debug(file.getAbsolutePath() + File.pathSeparator);
+            log.debug(file.getAbsolutePath() + File.pathSeparator);
 
             if (classLoader instanceof URLClassLoader) {
                 Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
                 method.setAccessible(true);
-                method.invoke(classLoader, url);
+                method.invoke(classLoader, file.toURI().toURL());
             }
         }
 
@@ -144,9 +141,6 @@ public class DynamicCompiler {
         DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
         JavaCompiler.CompilationTask task = javaCompiler.getTask(null, fileManager, collector, options, null, compilationUnits);
 
-        if (updateClassLoader) {
-            Thread.currentThread().setContextClassLoader(dynamicClassLoader);
-        }
 
         try {
 
@@ -213,10 +207,6 @@ public class DynamicCompiler {
 
     public ClassLoader getClassLoader() {
         return dynamicClassLoader;
-    }
-
-    public void setUpdateClassLoader(boolean updateClassLoader) {
-        this.updateClassLoader = updateClassLoader;
     }
 
     public String getClasspath() {
