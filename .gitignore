@@ -1,9 +1,8 @@
 *.class
 *.jar
-*/target
 /target
 /.DS_Store
 /.idea
-/*.iml
 */*.iml
-/smaple
+!jar_test_file.jar
+!JavaFile.class
