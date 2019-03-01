@@ -74,7 +74,7 @@ public class JarTest {
 
 
     @Test
-    public void DynamicJarCodeTestPrint() throws Exception {
+    public void dynamicJarCodeTestPrint() throws Exception {
         String sourceCode = "package org.dvare.dynamic;" +
                 "import org.dvare.dynamic.jar.Test;" +
                 "public class SourceClass {" +

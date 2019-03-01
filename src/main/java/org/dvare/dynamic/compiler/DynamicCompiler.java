@@ -25,6 +25,7 @@ package org.dvare.dynamic.compiler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dvare.dynamic.exceptions.DynamicCompilerException;
+import org.dvare.dynamic.exceptions.JavaCompilerNotFoundException;
 import org.dvare.dynamic.loader.ClassPathBuilder;
 import org.dvare.dynamic.resources.DynamicClassLoader;
 import org.dvare.dynamic.resources.DynamicJavaFileManager;
@@ -65,7 +66,7 @@ public class DynamicCompiler {
     public DynamicCompiler(ClassLoader classLoader, JavaCompiler javaCompiler, boolean writeClassFile) {
 
         if (javaCompiler == null) {
-            throw new RuntimeException("Java Compiler not found. JDK is required");
+            throw new JavaCompilerNotFoundException("Java Compiler not found. JDK is required");
         }
 
         this.classLoader = classLoader;

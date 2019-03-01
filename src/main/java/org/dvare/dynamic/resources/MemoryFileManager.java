@@ -66,14 +66,15 @@ public class MemoryFileManager extends ForwardingJavaFileManager<JavaFileManager
     }
 
     private List<JavaFileObject> addInMemoryClasses(Location location, String pkg, Set<Kind> kinds, boolean recurse) {
+        Location outPutLocation = location;
         List<JavaFileObject> result = new ArrayList<>();
 
-        if (location == StandardLocation.CLASS_PATH) {
-            location = StandardLocation.CLASS_OUTPUT;
+        if (outPutLocation == StandardLocation.CLASS_PATH) {
+            outPutLocation = StandardLocation.CLASS_OUTPUT;
         }
 
         for (Kind kind : kinds) {
-            LocationAndKind key = new LocationAndKind(location, kind);
+            LocationAndKind key = new LocationAndKind(outPutLocation, kind);
             if (classLoader.getRamFileSystem().containsKey(key)) {
                 Map<String, JavaFileObject> locatedFiles = classLoader.getRamFileSystem().get(key);
                 for (Map.Entry<String, JavaFileObject> entry : locatedFiles.entrySet()) {
