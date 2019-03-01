@@ -30,7 +30,7 @@ public class SourceTest {
 
 ## Current version
 
-* The current stable version is `1.3` : [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dvare/dynamic-loader/badge.svg?style=flat)](http://search.maven.org/#artifactdetails|org.dvare|dynamic-loader|1.3|)[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.dvare/dynamic-loader/badge.svg)](http://www.javadoc.io/doc/org.dvare/dynamic-loader)
+* The current stable version is `1.3` : [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dvare/dynamic-loader/badge.svg?style=flat)](http://search.maven.org/#artifactdetails|org.dvare|dynamic-loader|1.3|) [![Javadocs](http://www.javadoc.io/badge/org.dvare/dynamic-loader.svg)](http://www.javadoc.io/doc/org.dvare/dynamic-loader)
 * The current snapshot version is `2.0-SNAPSHOT` : [![Build Status](https://travis-ci.org/dvare/dynamic-loader.svg?branch=master)](https://travis-ci.org/dvare/dynamic-loader)
 
 
