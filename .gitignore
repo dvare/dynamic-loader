@@ -2,7 +2,7 @@
 *.jar
 /target
 /.DS_Store
-/.idea
-*/*.iml
+.idea
+*.iml
 !jar_test_file.jar
 !JavaFile.class
