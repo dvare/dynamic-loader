@@ -31,6 +31,7 @@ public class SourceTest {
 ## Current version
 
 * The current stable version is `2.0`
+* The current snapshot version is `2.1-SNAPSHOT` 
 
 In order to use snapshot versions, you need to add the following maven repository in your `pom.xml`:
 
