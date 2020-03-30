@@ -50,11 +50,13 @@ public class ClassPathBuilder {
             ClassLoader c = cl;
             while (c instanceof URLClassLoader) {
                 for (URL url : ((URLClassLoader) c).getURLs()) {
-                    if (url.openConnection() instanceof JarURLConnection) {
-                        paths.add(url.toString());
-                    } else {
-                        String decodedPath = URLDecoder.decode(url.getPath(), "UTF-8");
-                        paths.add(new File(decodedPath).getAbsolutePath());
+                    if (url.getProtocol() != null) {
+                        if (url.openConnection() instanceof JarURLConnection) {
+                            paths.add(url.toString());
+                        } else {
+                            String decodedPath = URLDecoder.decode(url.getPath(), "UTF-8");
+                            paths.add(new File(decodedPath).getAbsolutePath());
+                        }
                     }
                 }
                 c = c.getParent();
