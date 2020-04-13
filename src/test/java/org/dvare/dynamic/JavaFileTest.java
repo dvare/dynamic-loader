@@ -22,18 +22,18 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dvare.dynamic.compiler.DynamicCompiler;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
 import java.util.Map;
 
-@Slf4j
 public class JavaFileTest {
-
+    private static final Logger log = LoggerFactory.getLogger(JavaFileTest.class);
 
     @Test
     public void javaFileTest() throws Exception {

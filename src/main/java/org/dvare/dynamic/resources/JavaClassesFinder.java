@@ -1,6 +1,7 @@
 package org.dvare.dynamic.resources;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.tools.JavaFileObject;
 import java.io.File;
@@ -17,9 +18,9 @@ import java.util.jar.JarFile;
 
 import static javax.tools.JavaFileObject.Kind.CLASS;
 
-@Slf4j
 class JavaClassesFinder {
-    private ClassLoader classLoader;
+    private static final Logger logger = LoggerFactory.getLogger(DynamicJavaFileManager.class);
+    private final ClassLoader classLoader;
 
     JavaClassesFinder(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -64,6 +65,7 @@ class JavaClassesFinder {
                 URI uri = URI.create(jarUri + "!/" + name);
                 String binaryName = name.replaceAll("/", ".");
                 binaryName = binaryName.replaceAll(CLASS.extension + "$", "");
+
                 result.add(new CompiledJarFileByteCode(binaryName, jarFile, jarEntry, uri));
             }
         }

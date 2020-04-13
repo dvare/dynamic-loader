@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2019 Muhammad Hammad
+Copyright (c) 2020 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -48,7 +48,7 @@ public class DynamicCompilerException extends Exception {
     private List<Map<String, Object>> getErrorList() {
         List<Map<String, Object>> messages = new ArrayList<>();
         if (diagnostics != null) {
-            for (Diagnostic diagnostic : diagnostics) {
+            for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics) {
                 Map<String, Object> message = new HashMap<>();
                 message.put("line", diagnostic.getLineNumber());
                 message.put("message", diagnostic.getMessage(Locale.US));

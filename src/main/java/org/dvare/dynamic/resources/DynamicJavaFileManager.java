@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2019 Muhammad Hammad
+2020
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,8 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic.resources;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
@@ -31,11 +32,11 @@ import javax.tools.JavaFileObject;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 public class DynamicJavaFileManager extends MemoryFileManager {
+    private static final Logger logger = LoggerFactory.getLogger(DynamicJavaFileManager.class);
+    private final DynamicClassLoader classLoader;
+    private final List<MemoryByteCode> byteCodes = new ArrayList<>();
 
-    private DynamicClassLoader classLoader;
-    private List<MemoryByteCode> byteCodes = new ArrayList<>();
 
     public DynamicJavaFileManager(JavaFileManager fileManager, DynamicClassLoader classLoader) {
         super(fileManager, classLoader);
@@ -45,7 +46,17 @@ public class DynamicJavaFileManager extends MemoryFileManager {
 
 
     @Override
-    public JavaFileObject getJavaFileForOutput(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, FileObject sibling) {
+    public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) {
+
+       /*
+        LocationAndKind key = new LocationAndKind(location, kind);
+        if (classLoader.getRamFileSystem().containsKey(key)) {
+            JavaFileObject  javaFileObject = classLoader.getRamFileSystem().get(key).get(className);
+            if (javaFileObject != null) {
+                return javaFileObject;
+            }
+        }
+*/
 
         for (MemoryByteCode byteCode : byteCodes) {
             if (byteCode.getClassName().equals(className)) {
@@ -60,7 +71,7 @@ public class DynamicJavaFileManager extends MemoryFileManager {
             return innerClass;
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
 
 
@@ -69,7 +80,7 @@ public class DynamicJavaFileManager extends MemoryFileManager {
 
 
     @Override
-    public ClassLoader getClassLoader(JavaFileManager.Location location) {
+    public ClassLoader getClassLoader(Location location) {
         return classLoader;
     }
 }

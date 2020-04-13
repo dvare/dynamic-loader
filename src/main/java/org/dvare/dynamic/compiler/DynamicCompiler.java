@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2019 Muhammad Hammad
+Copyright (c) 2020 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +23,14 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic.compiler;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dvare.dynamic.exceptions.DynamicCompilerException;
 import org.dvare.dynamic.exceptions.JavaCompilerNotFoundException;
 import org.dvare.dynamic.loader.ClassPathBuilder;
 import org.dvare.dynamic.resources.DynamicClassLoader;
 import org.dvare.dynamic.resources.DynamicJavaFileManager;
 import org.dvare.dynamic.resources.StringSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.tools.*;
 import java.io.File;
@@ -38,17 +39,17 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
-@Slf4j
 public class DynamicCompiler {
+    private static final Logger logger = LoggerFactory.getLogger(DynamicCompiler.class);
     private final JavaCompiler javaCompiler;
     private final StandardJavaFileManager standardFileManager;
-    private List<String> options = new ArrayList<>();
-    private DynamicClassLoader dynamicClassLoader;
+    private final List<String> options = new ArrayList<>();
+    private final DynamicClassLoader dynamicClassLoader;
 
-    private Collection<JavaFileObject> compilationUnits = new ArrayList<>();
-    private List<Diagnostic<? extends JavaFileObject>> errors = new ArrayList<>();
-    private List<Diagnostic<? extends JavaFileObject>> warnings = new ArrayList<>();
-    private ClassLoader classLoader;
+    private final Collection<JavaFileObject> compilationUnits = new ArrayList<>();
+    private final List<Diagnostic<? extends JavaFileObject>> errors = new ArrayList<>();
+    private final List<Diagnostic<? extends JavaFileObject>> warnings = new ArrayList<>();
+    private final ClassLoader classLoader;
     private String classpath = "";
 
     public DynamicCompiler() {
@@ -107,18 +108,14 @@ public class DynamicCompiler {
             return;
         }
         File file = new File(url.getFile());
-        addJar(file);
-    }
-
-    public void addJar(File file) throws Exception {
         if (file.exists()) {
             classpath = classpath + file.getAbsolutePath() + File.pathSeparator;
-            log.debug(file.getAbsolutePath() + File.pathSeparator);
+            logger.debug(file.getAbsolutePath() + File.pathSeparator);
 
             if (classLoader instanceof URLClassLoader) {
                 Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
                 method.setAccessible(true);
-                method.invoke(classLoader, file.toURI().toURL());
+                method.invoke(classLoader, url);
             }
         }
 

@@ -23,15 +23,17 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dvare.dynamic.compiler.DynamicCompiler;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 
-@Slf4j
 public class JarTest {
+    private static final Logger log = LoggerFactory.getLogger(JarTest.class);
+
     @Test
     public void DynamicJarTest() throws Exception {
 
@@ -41,7 +43,7 @@ public class JarTest {
         dynamicCompiler.addJar(url);
         dynamicCompiler.build();
 
-        Class aClass = Class.forName("org.dvare.dynamic.jar.Test", false, dynamicCompiler.getClassLoader());
+        Class<?> aClass = Class.forName("org.dvare.dynamic.jar.Test", false, dynamicCompiler.getClassLoader());
 
         Assert.assertNotNull(aClass);
 

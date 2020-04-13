@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2019 Muhammad Hammad
+2020
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,14 +23,13 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic.resources;
 
-
 import javax.tools.SimpleJavaFileObject;
 import java.io.IOException;
 import java.net.URI;
 
 public class StringSource extends SimpleJavaFileObject {
-    private String contents = null;
-    private String className;
+    private final String contents;
+    private final String className;
 
     public StringSource(String className, String contents) {
         super(URI.create("string:///" + className.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);
