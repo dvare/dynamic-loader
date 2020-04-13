@@ -30,17 +30,8 @@ public class SourceTest {
 
 ## Current version
 
-* The current stable version is `2.0`
-* The current snapshot version is `2.1-SNAPSHOT` 
+* The current stable version is `2.1`
 
-In order to use snapshot versions, you need to add the following maven repository in your `pom.xml`:
-
-```xml
-<repository>
-    <id>ossrh</id>
-    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-</repository>
-```
  Maven dependency:
 
 ```xml
@@ -49,7 +40,7 @@ In order to use snapshot versions, you need to add the following maven repositor
         <dependency>
             <groupId>org.dvare</groupId>
             <artifactId>dynamic-loader</artifactId>
-            <version>2.0</version>
+            <version>2.1</version>
         </dependency>            
 <dependencies>
 ```
