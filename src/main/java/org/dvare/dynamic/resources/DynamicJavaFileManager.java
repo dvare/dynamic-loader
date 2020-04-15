@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DynamicJavaFileManager extends MemoryFileManager {
-    private static final Logger logger = LoggerFactory.getLogger(DynamicJavaFileManager.class);
+    private static final Logger log = LoggerFactory.getLogger(DynamicJavaFileManager.class);
     private final DynamicClassLoader classLoader;
     private final List<MemoryByteCode> byteCodes = new ArrayList<>();
 
@@ -71,7 +71,7 @@ public class DynamicJavaFileManager extends MemoryFileManager {
             return innerClass;
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
 

@@ -12,13 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClassPathBuilder {
-    private static final Logger logger = LoggerFactory.getLogger(ClassPathBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(ClassPathBuilder.class);
 
-    public String getClassPath(ClassLoader classLoader) {
-        if (classLoader instanceof URLClassLoader) {
-            return getClassPath((URLClassLoader) classLoader);
-        }
-        return "";
+    public String getClassPath() {
+        String pathSeparator = System
+                .getProperty("path.separator");
+        String[] classPathEntries = System
+                .getProperty("java.class.path")
+                .split(pathSeparator);
+        return String.join(File.pathSeparator, classPathEntries);
     }
 
     public String getClassPath(URLClassLoader cl) {
@@ -41,7 +43,7 @@ public class ClassPathBuilder {
             }
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return String.join(File.pathSeparator, paths);
     }

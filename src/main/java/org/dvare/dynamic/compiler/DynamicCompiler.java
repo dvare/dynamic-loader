@@ -40,7 +40,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 
 public class DynamicCompiler {
-    private static final Logger logger = LoggerFactory.getLogger(DynamicCompiler.class);
+    private static final Logger log = LoggerFactory.getLogger(DynamicCompiler.class);
     private final JavaCompiler javaCompiler;
     private final StandardJavaFileManager standardFileManager;
     private final List<String> options = new ArrayList<>();
@@ -79,7 +79,7 @@ public class DynamicCompiler {
         if (classLoader instanceof URLClassLoader) {
             classpath = new ClassPathBuilder().getClassPath((URLClassLoader) classLoader);
         } else {
-            classpath = new ClassPathBuilder().getClassPath(classLoader);
+            classpath = new ClassPathBuilder().getClassPath();
         }
 
         dynamicClassLoader = new DynamicClassLoader(classLoader, writeClassFile);
@@ -110,7 +110,7 @@ public class DynamicCompiler {
         File file = new File(url.getFile());
         if (file.exists()) {
             classpath = classpath + file.getAbsolutePath() + File.pathSeparator;
-            logger.debug(file.getAbsolutePath() + File.pathSeparator);
+            log.debug(file.getAbsolutePath() + File.pathSeparator);
 
             if (classLoader instanceof URLClassLoader) {
                 Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
@@ -132,9 +132,14 @@ public class DynamicCompiler {
             options.add(classpath);
         }
 
+        try {
+            Class.forName("com.sun.tools.sjavac.Module");
+            options.add("--add-exports");
+            options.add("java.base/java.lang=ALL-UNNAMED");
+        } catch (Exception ignored) {
+        }
 
         JavaFileManager fileManager = new DynamicJavaFileManager(standardFileManager, dynamicClassLoader);
-
 
         DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
         JavaCompiler.CompilationTask task = javaCompiler.getTask(null, fileManager, collector, options, null, compilationUnits);

@@ -1,18 +1,20 @@
 package org.dvare.dynamic.resources;
 
-import javax.tools.ForwardingJavaFileManager;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.tools.*;
 import javax.tools.JavaFileObject.Kind;
-import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.util.*;
 
 
 public class MemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
+    private static final Logger log = LoggerFactory.getLogger(MemoryFileManager.class);
 
     private final DynamicClassLoader classLoader;
     private final JavaClassesFinder finder;
+    private Iterable<JavaFileObject> javaBaseList;
 
     public MemoryFileManager(JavaFileManager standardJavaFileManager, DynamicClassLoader classLoader) {
         super(standardJavaFileManager);
@@ -22,12 +24,15 @@ public class MemoryFileManager extends ForwardingJavaFileManager<JavaFileManager
     }
 
 
+    boolean isModuleOrientedLocation(Location location) {
+        return location.getName().contains("MODULE");
+    }
+
     @Override
     public Iterable<JavaFileObject> list(Location location, String packageName, Set<Kind> kinds,
                                          boolean recurse) throws IOException {
-
         List<JavaFileObject> result = new ArrayList<>();
-        if (location == StandardLocation.PLATFORM_CLASS_PATH) {
+        if (location == StandardLocation.PLATFORM_CLASS_PATH || isModuleOrientedLocation(location)) {
             return super.list(location, packageName, kinds, recurse);
         } else if (location == StandardLocation.CLASS_PATH && kinds.contains(Kind.CLASS)) {
             for (JavaFileObject f : super.list(location, packageName, kinds, recurse)) {
@@ -36,7 +41,14 @@ public class MemoryFileManager extends ForwardingJavaFileManager<JavaFileManager
             result.addAll(finder.listAll(packageName));
         }
         result.addAll(addInMemoryClasses(location, packageName, kinds, recurse));
+
         return result;
+    }
+
+
+    @Override
+    public FileObject getFileForInput(Location location, String packageName, String relativeName) throws IOException {
+        return fileManager.getFileForInput(location, packageName, relativeName);
     }
 
     private List<JavaFileObject> addInMemoryClasses(Location location, String pkg, Set<Kind> kinds, boolean recurse) {
@@ -102,6 +114,5 @@ public class MemoryFileManager extends ForwardingJavaFileManager<JavaFileManager
         classname = classname.substring(0, classname.lastIndexOf(".class"));
         return classname;
     }
-
 
 }

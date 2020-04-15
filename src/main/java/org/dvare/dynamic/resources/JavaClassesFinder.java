@@ -19,7 +19,7 @@ import java.util.jar.JarFile;
 import static javax.tools.JavaFileObject.Kind.CLASS;
 
 class JavaClassesFinder {
-    private static final Logger logger = LoggerFactory.getLogger(DynamicJavaFileManager.class);
+    private static final Logger log = LoggerFactory.getLogger(DynamicJavaFileManager.class);
     private final ClassLoader classLoader;
 
     JavaClassesFinder(ClassLoader classLoader) {

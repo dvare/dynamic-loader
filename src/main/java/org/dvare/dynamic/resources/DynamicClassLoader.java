@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DynamicClassLoader extends ClassLoader {
-    private static final Logger logger = LoggerFactory.getLogger(DynamicClassLoader.class);
+    private static final Logger log = LoggerFactory.getLogger(DynamicClassLoader.class);
     private final Map<LocationAndKind, Map<String, JavaFileObject>> ramFileSystem = new HashMap<>();
     private final Map<String, MemoryByteCode> byteCodes = new HashMap<>();
     private final boolean writeClassFile;
@@ -76,7 +76,7 @@ public class DynamicClassLoader extends ClassLoader {
                 outputStream.close();
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
     }
