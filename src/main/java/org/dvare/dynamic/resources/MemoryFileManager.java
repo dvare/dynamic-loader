@@ -41,7 +41,6 @@ public class MemoryFileManager extends ForwardingJavaFileManager<JavaFileManager
             result.addAll(finder.listAll(packageName));
         }
         result.addAll(addInMemoryClasses(location, packageName, kinds, recurse));
-
         return result;
     }
 

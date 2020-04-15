@@ -69,7 +69,7 @@ public class JarTest {
         dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode);
         dynamicCompiler.build();
 
-        Class aClass = Class.forName("org.dvare.dynamic.SourceClass", false, dynamicCompiler.getClassLoader());
+        Class<?> aClass = Class.forName("org.dvare.dynamic.SourceClass", false, dynamicCompiler.getClassLoader());
         Assert.assertNotNull(aClass);
 
     }
@@ -97,7 +97,7 @@ public class JarTest {
         dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode);
         dynamicCompiler.build();
 
-        Class aClass = Class.forName("org.dvare.dynamic.SourceClass", false, dynamicCompiler.getClassLoader());
+        Class<?> aClass = Class.forName("org.dvare.dynamic.SourceClass", false, dynamicCompiler.getClassLoader());
         Assert.assertNotNull(aClass);
 
         Object instance = aClass.newInstance();

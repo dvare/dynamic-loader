@@ -8,19 +8,18 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClassPathBuilder {
     private static final Logger log = LoggerFactory.getLogger(ClassPathBuilder.class);
 
+    public final static String pathSeparator = System.getProperty("path.separator");
+
     public String getClassPath() {
-        String pathSeparator = System
-                .getProperty("path.separator");
-        String[] classPathEntries = System
-                .getProperty("java.class.path")
-                .split(pathSeparator);
-        return String.join(File.pathSeparator, classPathEntries);
+        return System
+                .getProperty("java.class.path");
     }
 
     public String getClassPath(URLClassLoader cl) {
@@ -34,7 +33,7 @@ public class ClassPathBuilder {
                         if (url.openConnection() instanceof JarURLConnection) {
                             paths.add(url.toString());
                         } else {
-                            String decodedPath = URLDecoder.decode(url.getPath(), "UTF-8");
+                            String decodedPath = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8.toString());
                             paths.add(new File(decodedPath).getAbsolutePath());
                         }
                     }
@@ -45,7 +44,7 @@ public class ClassPathBuilder {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        return String.join(File.pathSeparator, paths);
+        return String.join(pathSeparator, paths);
     }
 
 }
