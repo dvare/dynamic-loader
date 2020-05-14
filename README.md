@@ -1,4 +1,4 @@
-## Dynamic Loader [![Build Status](https://travis-ci.org/dvare/dynamic-loader.svg?branch=master)](https://travis-ci.org/dvare/dynamic-loader) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5ecf8a11d36e4211b21ae5cdbbba5e65)](https://www.codacy.com/app/hammadirshad/DynamicLoader?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dvare/DynamicLoader&amp;utm_campaign=Badge_Grade)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dvare/dynamic-loader/badge.svg?style=flat)](http://search.maven.org/#artifactdetails|org.dvare|dynamic-loader|2.0|) [![Javadocs](http://www.javadoc.io/badge/org.dvare/dynamic-loader.svg)](http://www.javadoc.io/doc/org.dvare/dynamic-loader)
+## Dynamic Loader [![Build Status](https://travis-ci.org/dvare/dynamic-loader.svg?branch=master)](https://travis-ci.org/dvare/dynamic-loader) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5ecf8a11d36e4211b21ae5cdbbba5e65)](https://www.codacy.com/app/hammadirshad/DynamicLoader?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dvare/DynamicLoader&amp;utm_campaign=Badge_Grade)[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dvare/dynamic-loader/badge.svg?style=flat)](http://search.maven.org/#artifactdetails|org.dvare|dynamic-loader|3.0|) [![Javadocs](http://www.javadoc.io/badge/org.dvare/dynamic-loader.svg)](http://www.javadoc.io/doc/org.dvare/dynamic-loader)
 Dynamic Loader is In Memory Java Compiler and classpath loader which enables to compile both java file and code string in memory and also provide support to load supportive jars in classpath which need to compile the dynamic code.
 
 ## Example
@@ -31,7 +31,16 @@ public class SourceTest {
 ## Current version
 
 * The current stable version is `3.0`
+* The current snapshot version is `3.1-SNAPSHOT` 
 
+In order to use snapshot versions, you need to add the following maven repository in your `pom.xml`:
+
+```xml
+<repository>
+    <id>ossrh</id>
+    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+</repository>
+```
  Maven dependency:
 
 ```xml
@@ -40,7 +49,7 @@ public class SourceTest {
         <dependency>
             <groupId>org.dvare</groupId>
             <artifactId>dynamic-loader</artifactId>
-            <version>2.1</version>
+            <version>3.0</version>
         </dependency>            
 <dependencies>
 ```
