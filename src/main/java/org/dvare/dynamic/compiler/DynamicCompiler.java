@@ -156,6 +156,10 @@ public class DynamicCompiler {
             Class.forName("com.sun.tools.sjavac.Module");
             options.add("--add-exports");
             options.add("java.base/java.lang=ALL-UNNAMED");
+            options.add("--add-exports");
+            options.add("java.base/java.util=ALL-UNNAMED");
+            options.add("--add-exports");
+            options.add("java.base/java.io=ALL-UNNAMED");
         } catch (Exception ignored) {
         }
 
