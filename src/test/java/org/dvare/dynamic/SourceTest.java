@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2019 Muhammad Hammad
+Copyright (c) 2021 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ public class SourceTest {
     private static final Logger log = LoggerFactory.getLogger(SourceTest.class);
 
     @Test
-    public void compile_test() throws Exception {
+    public void stringSourceCompileTest() throws Exception {
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
         String sourceCode = "package org.dvare.dynamic;" +
@@ -50,7 +50,7 @@ public class SourceTest {
     }
 
     @Test
-    public void localDate_test() throws Exception {
+    public void stringSourceImportCompileTest() throws Exception {
 
         String sourceCode = "package org.dvare.dynamic;" +
                 "import java.time.LocalDate;" +
@@ -72,12 +72,14 @@ public class SourceTest {
 
         Object dateUtil = dateUtilClass.newInstance();
         Object result = dateUtilClass.getMethod("getTestDate").invoke(dateUtil);
+        Assert.assertNotNull(result);
+        log.debug(result.toString());
         Assert.assertEquals("2020-05-15", result);
     }
 
 
     @Test
-    public void compile_multiple_sources() throws Exception {
+    public void multipleSourcesCompileTest() throws Exception {
         DynamicCompiler compiler = new DynamicCompiler();
 
         String source1 = "public class SourceClass1 { public SourceClass2 getSourceClass2() { return new SourceClass2(); }}";
@@ -101,7 +103,7 @@ public class SourceTest {
 
 
     @Test
-    public void compile_innerCLass() throws Exception {
+    public void innerCLassCompileTest() throws Exception {
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
 
         String sourceCode = "package org.dvare.dynamic;" +

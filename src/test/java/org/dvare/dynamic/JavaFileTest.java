@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2019 Muhammad Hammad
+Copyright (c) 2021 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -47,12 +47,10 @@ public class JavaFileTest {
         Class<?> aClass = compiled.get("org.dvare.dynamic.JavaFile");
         Assert.assertNotNull(aClass);
         Assert.assertEquals(1, aClass.getDeclaredMethods().length);
-
-
     }
 
     @Test
-    public void javaFile_Compiled() throws Exception {
+    public void compiledJavaFileTest() throws Exception {
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
         URL url = getClass().getClassLoader().getResource("JavaFile.java");
@@ -61,17 +59,14 @@ public class JavaFileTest {
         Map<String, Class<?>> compiled = dynamicCompiler.build();
         Class<?> aClass = compiled.get("org.dvare.dynamic.JavaFile");
 
-
         Object instance = aClass.newInstance();
         Object result = aClass.getMethod("getName").invoke(instance);
         log.debug(result.toString());
         Assert.assertEquals("InMemoryCompiled", result);
-
-
     }
 
     @Test
-    public void javaFile_ClassForName() throws Exception {
+    public void javaFileClassForNameTest() throws Exception {
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
         URL url = getClass().getClassLoader().getResource("JavaFile.java");
@@ -85,7 +80,5 @@ public class JavaFileTest {
         Object result = aClass.getMethod("getName").invoke(instance);
         log.debug(result.toString());
         Assert.assertEquals("InMemoryCompiled", result);
-
-
     }
 }

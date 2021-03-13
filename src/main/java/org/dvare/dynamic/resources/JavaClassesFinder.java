@@ -1,8 +1,5 @@
 package org.dvare.dynamic.resources;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.IOException;
@@ -19,13 +16,11 @@ import java.util.jar.JarFile;
 import static javax.tools.JavaFileObject.Kind.CLASS;
 
 class JavaClassesFinder {
-    private static final Logger log = LoggerFactory.getLogger(DynamicJavaFileManager.class);
     private final ClassLoader classLoader;
 
     JavaClassesFinder(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
-
 
     public List<JavaFileObject> listAll(String packageName) throws IOException {
         String javaPackageName = packageName.replaceAll("\\.", "/");

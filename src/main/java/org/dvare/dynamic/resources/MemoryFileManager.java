@@ -1,8 +1,5 @@
 package org.dvare.dynamic.resources;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.tools.*;
 import javax.tools.JavaFileObject.Kind;
 import java.io.IOException;
@@ -10,11 +7,9 @@ import java.util.*;
 
 
 public class MemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
-    private static final Logger log = LoggerFactory.getLogger(MemoryFileManager.class);
 
     private final DynamicClassLoader classLoader;
     private final JavaClassesFinder finder;
-    private Iterable<JavaFileObject> javaBaseList;
 
     public MemoryFileManager(JavaFileManager standardJavaFileManager, DynamicClassLoader classLoader) {
         super(standardJavaFileManager);
@@ -23,10 +18,6 @@ public class MemoryFileManager extends ForwardingJavaFileManager<JavaFileManager
         finder = new JavaClassesFinder(classLoader);
     }
 
-
-    boolean isModuleOrientedLocation(Location location) {
-        return location.getName().contains("MODULE");
-    }
 
     @Override
     public Iterable<JavaFileObject> list(Location location, String packageName, Set<Kind> kinds,
@@ -53,12 +44,13 @@ public class MemoryFileManager extends ForwardingJavaFileManager<JavaFileManager
     private List<JavaFileObject> addInMemoryClasses(Location location, String pkg, Set<Kind> kinds, boolean recurse) {
         List<JavaFileObject> result = new ArrayList<>();
 
-        if (location == StandardLocation.CLASS_PATH) {
-            location = StandardLocation.CLASS_OUTPUT;
+        Location classOutputlocation = location;
+        if (classOutputlocation == StandardLocation.CLASS_PATH) {
+            classOutputlocation = StandardLocation.CLASS_OUTPUT;
         }
 
         for (Kind kind : kinds) {
-            LocationAndKind key = new LocationAndKind(location, kind);
+            LocationAndKind key = new LocationAndKind(classOutputlocation, kind);
             if (classLoader.getRamFileSystem().containsKey(key)) {
                 Map<String, JavaFileObject> locatedFiles = classLoader.getRamFileSystem().get(key);
                 for (Map.Entry<String, JavaFileObject> entry : locatedFiles.entrySet()) {
@@ -89,6 +81,10 @@ public class MemoryFileManager extends ForwardingJavaFileManager<JavaFileManager
         return null;
     }
 
+
+    private boolean isModuleOrientedLocation(Location location) {
+        return location.getName().contains("MODULE");
+    }
 
     @Override
     public boolean hasLocation(Location location) {

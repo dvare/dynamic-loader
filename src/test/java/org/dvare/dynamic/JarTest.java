@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2019 Muhammad Hammad
+Copyright (c) 2021 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,23 +35,21 @@ public class JarTest {
     private static final Logger log = LoggerFactory.getLogger(JarTest.class);
 
     @Test
-    public void DynamicJarTest() throws Exception {
+    public void dynamicJarTest() throws Exception {
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
         URL url = getClass().getClassLoader().getResource("jar_test_file.jar");
         Assert.assertNotNull(url);
         dynamicCompiler.addJar(url);
         dynamicCompiler.build();
-
         Class<?> aClass = Class.forName("org.dvare.dynamic.jar.Test", false, dynamicCompiler.getClassLoader());
-
         Assert.assertNotNull(aClass);
 
     }
 
 
     @Test
-    public void DynamicJarCodeTest() throws Exception {
+    public void dynamicJarCodeTest() throws Exception {
         String sourceCode = "package org.dvare.dynamic;" +
                 "import org.dvare.dynamic.jar.Test;" +
                 "public class SourceClass {" +
@@ -68,7 +66,6 @@ public class JarTest {
         dynamicCompiler.addJar(url);
         dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode);
         dynamicCompiler.build();
-
         Class<?> aClass = Class.forName("org.dvare.dynamic.SourceClass", false, dynamicCompiler.getClassLoader());
         Assert.assertNotNull(aClass);
 
