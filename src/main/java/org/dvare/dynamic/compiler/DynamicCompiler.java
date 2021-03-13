@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2020 Muhammad Hammad
+Copyright (c) 2021 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@ THE SOFTWARE.*/
 
 package org.dvare.dynamic.compiler;
 
+import org.dvare.dynamic.exceptions.ArgumentNullException;
 import org.dvare.dynamic.exceptions.DynamicCompilerException;
 import org.dvare.dynamic.exceptions.JavaCompilerNotFoundException;
 import org.dvare.dynamic.loader.ClassPathBuilder;
@@ -110,11 +111,16 @@ public class DynamicCompiler {
         compilationUnits.add(javaFileObject);
     }
 
-    public void addJar(URL url) throws Exception {
-        if (url == null) {
-            return;
+    /**
+     * <p> possibility to add jar into classpath
+     *
+     * @param jarUrl String
+     */
+    public void addJar(URL jarUrl) throws Exception {
+        if (jarUrl == null) {
+            throw new ArgumentNullException("Jar url is empty");
         }
-        File file = new File(url.getFile());
+        File file = new File(jarUrl.getFile());
         if (file.exists()) {
             classpath = classpath + ClassPathBuilder.pathSeparator + file.getAbsolutePath();
             log.debug(file.getAbsolutePath());
@@ -122,21 +128,21 @@ public class DynamicCompiler {
             if (classLoader instanceof URLClassLoader) {
                 Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
                 method.setAccessible(true);
-                method.invoke(classLoader, url);
+                method.invoke(classLoader, jarUrl);
             }
         }
 
     }
 
     /**
-     * @param key   String
-     * @param value String
+     * <p> possibility to add javac options
      *
-     *              possibility to add javac options
+     * @param key   javac option key
+     * @param value javac option value
      */
-    public void addOption(String key, String value) throws Exception {
+    public void addOption(String key, String value) throws ArgumentNullException {
         if (key == null || key.isEmpty()) {
-            throw new Exception("Option key is empty");
+            throw new ArgumentNullException("Option key is empty");
         }
         options.add(key);
         options.add(value);
