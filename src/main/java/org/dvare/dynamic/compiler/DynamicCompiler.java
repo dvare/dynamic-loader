@@ -75,8 +75,8 @@ public class DynamicCompiler {
 
         options.add("-Xlint:unchecked");
         if (classLoader instanceof URLClassLoader) {
-            this.classLoader = classLoader;
             this.classpath = new ClassPathBuilder().getClassPath((URLClassLoader) classLoader);
+            this.classLoader = classLoader;
         } else {
             this.classpath = new ClassPathBuilder().getClassPath();
             URL[] urls = Stream.of(classpath.split(ClassPathBuilder.pathSeparator)).map(path -> {
@@ -91,7 +91,7 @@ public class DynamicCompiler {
 
         this.javaCompiler = javaCompiler;
         this.standardFileManager = javaCompiler.getStandardFileManager(null, null, null);
-        this.dynamicClassLoader = new DynamicClassLoader(classLoader, writeClassFile);
+        this.dynamicClassLoader = new DynamicClassLoader(this.classLoader, writeClassFile);
 
     }
 
