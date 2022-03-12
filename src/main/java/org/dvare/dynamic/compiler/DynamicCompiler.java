@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.tools.*;
 import java.io.File;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -47,12 +46,11 @@ public class DynamicCompiler {
     private final JavaCompiler javaCompiler;
     private final StandardJavaFileManager standardFileManager;
     private final List<String> options = new ArrayList<>();
-    private final DynamicClassLoader dynamicClassLoader;
+    private final DynamicClassLoader classLoader;
 
     private final Collection<JavaFileObject> compilationUnits = new ArrayList<>();
     private final List<Diagnostic<? extends JavaFileObject>> errors = new ArrayList<>();
     private final List<Diagnostic<? extends JavaFileObject>> warnings = new ArrayList<>();
-    private final ClassLoader classLoader;
     private String classpath;
 
     public DynamicCompiler() {
@@ -74,24 +72,23 @@ public class DynamicCompiler {
         }
 
         options.add("-Xlint:unchecked");
+        URL[] urls = new URL[0];
         if (classLoader instanceof URLClassLoader) {
             this.classpath = new ClassPathBuilder().getClassPath((URLClassLoader) classLoader);
-            this.classLoader = classLoader;
         } else {
             this.classpath = new ClassPathBuilder().getClassPath();
-            URL[] urls = Stream.of(classpath.split(ClassPathBuilder.pathSeparator)).map(path -> {
+            urls = Stream.of(classpath.split(ClassPathBuilder.pathSeparator)).map(path -> {
                 try {
                     return new URL(path);
                 } catch (MalformedURLException ignored) {
                 }
                 return null;
             }).filter(Objects::nonNull).toArray(URL[]::new);
-            this.classLoader = URLClassLoader.newInstance(urls, classLoader);
         }
 
         this.javaCompiler = javaCompiler;
         this.standardFileManager = javaCompiler.getStandardFileManager(null, null, null);
-        this.dynamicClassLoader = new DynamicClassLoader(this.classLoader, writeClassFile);
+        this.classLoader = new DynamicClassLoader(urls, classLoader, writeClassFile);
 
     }
 
@@ -113,24 +110,20 @@ public class DynamicCompiler {
     }
 
     /**
-     * <p> possibility to add jar into classpath
+     * <p> possibility to add class and jar into classpath
      *
-     * @param jarUrl String
+     * @param path String
      */
-    public void addJar(URL jarUrl) throws Exception {
-        if (jarUrl == null) {
-            throw new ArgumentNullException("Jar url is empty");
+    public void addClasspath(URL path) throws Exception {
+        if (path == null) {
+            throw new ArgumentNullException("path is empty");
         }
-        File file = new File(jarUrl.getFile());
+        File file = new File(path.getFile());
         if (file.exists()) {
             classpath = classpath + ClassPathBuilder.pathSeparator + file.getAbsolutePath();
             log.debug(file.getAbsolutePath());
+            this.classLoader.addURL(path);
 
-            if (classLoader instanceof URLClassLoader) {
-                Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-                method.setAccessible(true);
-                method.invoke(classLoader, jarUrl);
-            }
         }
 
     }
@@ -138,15 +131,15 @@ public class DynamicCompiler {
     /**
      * <p> possibility to add javac options
      *
-     * @param key   javac option key
-     * @param value javac option value
+     * @param compilerOption      javac option key
+     * @param compilerOptionVaule javac option value
      */
-    public void addOption(String key, String value) throws ArgumentNullException {
-        if (key == null || key.isEmpty()) {
+    public void addCompilerOption(DynamicCompilerOption compilerOption, String compilerOptionVaule) throws ArgumentNullException {
+        if (compilerOption == null) {
             throw new ArgumentNullException("Option key is empty");
         }
-        options.add(key);
-        options.add(value);
+        options.add(compilerOption.toString());
+        options.add(compilerOptionVaule);
     }
 
     public Map<String, Class<?>> build() throws DynamicCompilerException {
@@ -161,16 +154,20 @@ public class DynamicCompiler {
 
         try {
             Class.forName("com.sun.tools.sjavac.Module");
-            options.add("--add-exports");
+            options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
             options.add("java.base/java.lang=ALL-UNNAMED");
-            options.add("--add-exports");
+            options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
             options.add("java.base/java.util=ALL-UNNAMED");
-            options.add("--add-exports");
+            options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
             options.add("java.base/java.io=ALL-UNNAMED");
+            options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
+            options.add("java.base/java.net=ALL-UNNAMED");
+
+
         } catch (Exception ignored) {
         }
 
-        JavaFileManager fileManager = new DynamicJavaFileManager(standardFileManager, dynamicClassLoader);
+        JavaFileManager fileManager = new DynamicJavaFileManager(standardFileManager, classLoader);
 
         DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
         JavaCompiler.CompilationTask task = javaCompiler.getTask(null, fileManager, collector, options, null, compilationUnits);
@@ -205,7 +202,7 @@ public class DynamicCompiler {
                 }
             }
 
-            return dynamicClassLoader.getClasses();
+            return classLoader.getClasses();
         } catch (ClassFormatError | ClassNotFoundException e) {
             throw new DynamicCompilerException(e);
         } finally {
@@ -238,7 +235,7 @@ public class DynamicCompiler {
     }
 
     public ClassLoader getClassLoader() {
-        return dynamicClassLoader;
+        return classLoader;
     }
 
     public String getClasspath() {

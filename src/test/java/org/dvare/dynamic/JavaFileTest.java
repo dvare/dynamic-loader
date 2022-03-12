@@ -23,8 +23,7 @@ THE SOFTWARE.*/
 package org.dvare.dynamic;
 
 import org.dvare.dynamic.compiler.DynamicCompiler;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,53 +31,44 @@ import java.io.File;
 import java.net.URL;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class JavaFileTest {
     private static final Logger log = LoggerFactory.getLogger(JavaFileTest.class);
 
     @Test
-    public void javaFileTest() throws Exception {
+    public void javaFile_compile_Test() throws Exception {
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
         URL url = getClass().getClassLoader().getResource("JavaFile.java");
-        Assert.assertNotNull(url);
+        assertNotNull(url);
         dynamicCompiler.addSource(new File(url.getPath()));
 
         Map<String, Class<?>> compiled = dynamicCompiler.build();
-        Class<?> aClass = compiled.get("org.dvare.dynamic.JavaFile");
-        Assert.assertNotNull(aClass);
-        Assert.assertEquals(1, aClass.getDeclaredMethods().length);
-    }
+        Class<?> javaFileClass = compiled.get("org.dvare.dynamic.JavaFile");
 
-    @Test
-    public void compiledJavaFileTest() throws Exception {
-
-        DynamicCompiler dynamicCompiler = new DynamicCompiler();
-        URL url = getClass().getClassLoader().getResource("JavaFile.java");
-        Assert.assertNotNull(url);
-        dynamicCompiler.addSource(new File(url.getPath()));
-        Map<String, Class<?>> compiled = dynamicCompiler.build();
-        Class<?> aClass = compiled.get("org.dvare.dynamic.JavaFile");
-
-        Object instance = aClass.newInstance();
-        Object result = aClass.getMethod("getName").invoke(instance);
+        Object instance = javaFileClass.newInstance();
+        Object result = javaFileClass.getMethod("getName").invoke(instance);
         log.debug(result.toString());
-        Assert.assertEquals("InMemoryCompiled", result);
+        assertEquals("InMemoryCompiled", result);
     }
 
     @Test
-    public void javaFileClassForNameTest() throws Exception {
+    public void javaFile_ClassForName_find_Test() throws Exception {
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
         URL url = getClass().getClassLoader().getResource("JavaFile.java");
-        Assert.assertNotNull(url);
+        assertNotNull(url);
         dynamicCompiler.addSource(new File(url.getPath()));
         dynamicCompiler.build();
-        Class<?> aClass = Class.forName("org.dvare.dynamic.JavaFile",
+
+        Class<?> javaFileClass = Class.forName("org.dvare.dynamic.JavaFile",
                 false, dynamicCompiler.getClassLoader());
 
-        Object instance = aClass.newInstance();
-        Object result = aClass.getMethod("getName").invoke(instance);
+        Object instance = javaFileClass.newInstance();
+        Object result = javaFileClass.getMethod("getName").invoke(instance);
         log.debug(result.toString());
-        Assert.assertEquals("InMemoryCompiled", result);
+        assertEquals("InMemoryCompiled", result);
     }
 }
