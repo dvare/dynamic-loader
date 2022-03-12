@@ -24,12 +24,15 @@ THE SOFTWARE.*/
 package org.dvare.dynamic;
 
 import org.dvare.dynamic.compiler.DynamicCompiler;
-import org.junit.Assert;
-import org.junit.Test;
+import org.dvare.dynamic.compiler.DynamicCompilerOption;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SourceTest {
     private static final Logger log = LoggerFactory.getLogger(SourceTest.class);
@@ -45,8 +48,8 @@ public class SourceTest {
         dynamicCompiler.addSource("org.dvare.dynamic.SourceClass", sourceCode);
         Map<String, Class<?>> compiled = dynamicCompiler.build();
         Class<?> aClass = compiled.get("org.dvare.dynamic.SourceClass");
-        Assert.assertNotNull(aClass);
-        Assert.assertEquals(1, aClass.getDeclaredMethods().length);
+        assertNotNull(aClass);
+        assertEquals(1, aClass.getDeclaredMethods().length);
     }
 
     @Test
@@ -61,20 +64,20 @@ public class SourceTest {
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
         try {
             Class.forName("com.sun.tools.sjavac.Module"); //if java module present
-            dynamicCompiler.addOption("--add-exports", "java.base/java.time=ALL-UNNAMED");
+            dynamicCompiler.addCompilerOption(DynamicCompilerOption.ADD_EXPORTS, "java.base/java.time=ALL-UNNAMED");
         } catch (Exception ignored) {
         }
         dynamicCompiler.addSource("org.dvare.dynamic.DateUtil", sourceCode);
         Map<String, Class<?>> compiled = dynamicCompiler.build();
         Class<?> dateUtilClass = compiled.get("org.dvare.dynamic.DateUtil");
-        Assert.assertNotNull(dateUtilClass);
-        Assert.assertEquals(1, dateUtilClass.getDeclaredMethods().length);
+        assertNotNull(dateUtilClass);
+        assertEquals(1, dateUtilClass.getDeclaredMethods().length);
 
         Object dateUtil = dateUtilClass.newInstance();
         Object result = dateUtilClass.getMethod("getTestDate").invoke(dateUtil);
-        Assert.assertNotNull(result);
+        assertNotNull(result);
         log.debug(result.toString());
-        Assert.assertEquals("2020-05-15", result);
+        assertEquals("2020-05-15", result);
     }
 
 
@@ -91,14 +94,14 @@ public class SourceTest {
 
         Map<String, Class<?>> compiled = compiler.build();
 
-        Assert.assertNotNull(compiled.get("SourceClass1"));
-        Assert.assertNotNull(compiled.get("SourceClass2"));
+        assertNotNull(compiled.get("SourceClass1"));
+        assertNotNull(compiled.get("SourceClass2"));
 
         Class<?> aClass = compiled.get("SourceClass1");
 
         Object instance = aClass.newInstance();
         Object result = aClass.getMethod("getSourceClass2").invoke(instance);
-        Assert.assertEquals("SourceClass2", result.toString());
+        assertEquals("SourceClass2", result.toString());
     }
 
 
@@ -117,13 +120,13 @@ public class SourceTest {
 
         Class<?> aClass = Class.forName("org.dvare.dynamic.SourceClass",
                 false, dynamicCompiler.getClassLoader());
-        Assert.assertNotNull(aClass);
-        Assert.assertEquals(1, aClass.getDeclaredMethods().length);
+        assertNotNull(aClass);
+        assertEquals(1, aClass.getDeclaredMethods().length);
 
 
         Class<?> innerClass = Class.forName("org.dvare.dynamic.SourceClass$InnerSourceClass",
                 false, dynamicCompiler.getClassLoader());
-        Assert.assertNotNull(innerClass);
+        assertNotNull(innerClass);
 
 
     }

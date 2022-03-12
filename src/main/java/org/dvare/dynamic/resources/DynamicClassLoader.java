@@ -29,20 +29,24 @@ import org.slf4j.LoggerFactory;
 import javax.tools.JavaFileObject;
 import java.io.FileOutputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DynamicClassLoader extends ClassLoader {
+public class DynamicClassLoader extends URLClassLoader {
     private static final Logger log = LoggerFactory.getLogger(DynamicClassLoader.class);
     private final Map<LocationAndKind, Map<String, JavaFileObject>> ramFileSystem = new HashMap<>();
     private final Map<String, MemoryByteCode> byteCodes = new HashMap<>();
     private final boolean writeClassFile;
 
-    public DynamicClassLoader(ClassLoader classLoader, boolean writeClassFile) {
-        super(classLoader);
+    public DynamicClassLoader(URL[] urls, ClassLoader classLoader, boolean writeClassFile) {
+        super(urls, classLoader);
         this.writeClassFile = writeClassFile;
     }
 
+    public void addURL(URL url) {
+        super.addURL(url);
+    }
 
     public void registerCompiledSource(MemoryByteCode byteCode) {
         byteCodes.put(byteCode.getClassName(), byteCode);
