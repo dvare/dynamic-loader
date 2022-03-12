@@ -30,8 +30,7 @@ public class SourceTest {
 
 ## Current version
 
-* The current stable version is `3.0`
-* The current snapshot version is `3.1-SNAPSHOT` 
+* The current stable version is `3.1`
 
 In order to use snapshot versions, you need to add the following maven repository in your `pom.xml`:
 
@@ -49,9 +48,9 @@ In order to use snapshot versions, you need to add the following maven repositor
         <dependency>
             <groupId>org.dvare</groupId>
             <artifactId>dynamic-loader</artifactId>
-            <version>3.0</version>
-        </dependency>            
-<dependencies>
+            <version>3.1</version>
+        </dependency>
+    <dependencies>
 ```
 
 ## License
@@ -60,7 +59,7 @@ Dynamic Loader is released under the [![MIT license](http://img.shields.io/badge
 ```
 The MIT License (MIT)
 
-Copyright (c) 2020 Muhammad Hammad
+Copyright (c) 2022 Muhammad Hammad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
