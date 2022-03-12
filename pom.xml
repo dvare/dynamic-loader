@@ -5,7 +5,7 @@
 
   <groupId>org.dvare</groupId>
   <artifactId>dynamic-loader</artifactId>
-  <version>3.1-SNAPSHOT</version>
+  <version>3.2-SNAPSHOT</version>
 
   <description>
     Java In memory Compiler thats enables to compile java file and code string in memory.
@@ -106,7 +106,7 @@
 
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
+      <artifactId>slf4j-reload4j</artifactId>
       <version>1.7.36</version>
       <scope>test</scope>
     </dependency>
