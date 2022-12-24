@@ -1,7 +1,0 @@
-language: java
-sudo: false
-jdk:
-  - openjdk8
-  - openjdk11
-after_success:
-  - mvn clean source:jar javadoc:jar install
