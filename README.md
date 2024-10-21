@@ -30,8 +30,7 @@ public class SourceTest {
 
 ## Current version
 
-* The current stable version is `3.1`
-* The current snapshot version is `3.2-SNAPSHOT`
+* The current stable version is `3.2`
 
 In order to use snapshot versions, you need to add the following maven repository in your `pom.xml`:
 
@@ -49,7 +48,7 @@ In order to use snapshot versions, you need to add the following maven repositor
         <dependency>
             <groupId>org.dvare</groupId>
             <artifactId>dynamic-loader</artifactId>
-            <version>3.1</version>
+            <version>3.2</version>
         </dependency>
     <dependencies>
 ```
