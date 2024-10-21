@@ -142,6 +142,15 @@ public class DynamicCompiler {
         options.add(compilerOptionVaule);
     }
 
+    public static boolean isJava9OrAbove() {
+        String version = System.getProperty("java.version");
+        if (version.startsWith("1.8")) {
+            return false;
+        }
+        int majorVersion = Integer.parseInt(version.split("\\.")[0]);
+        return majorVersion >= 9;
+    }
+
     public Map<String, Class<?>> build() throws DynamicCompilerException {
 
         errors.clear();
@@ -153,17 +162,9 @@ public class DynamicCompiler {
         }
 
         try {
-            Class.forName("com.sun.tools.sjavac.Module");
-            options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
-            options.add("java.base/java.lang=ALL-UNNAMED");
-            options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
-            options.add("java.base/java.util=ALL-UNNAMED");
-            options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
-            options.add("java.base/java.io=ALL-UNNAMED");
-            options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
-            options.add("java.base/java.net=ALL-UNNAMED");
-
-
+            if (isJava9OrAbove()) {
+                importBaseModule();
+            }
         } catch (Exception ignored) {
         }
 
@@ -211,6 +212,17 @@ public class DynamicCompiler {
         }
 
 
+    }
+
+    private void importBaseModule() {
+        options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
+        options.add("java.base/java.lang=ALL-UNNAMED");
+        options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
+        options.add("java.base/java.util=ALL-UNNAMED");
+        options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
+        options.add("java.base/java.io=ALL-UNNAMED");
+        options.add(DynamicCompilerOption.ADD_EXPORTS.toString());
+        options.add("java.base/java.net=ALL-UNNAMED");
     }
 
 
