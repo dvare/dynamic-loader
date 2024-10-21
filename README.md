@@ -18,6 +18,11 @@ public class SourceTest {
         sourceCode.append("}");
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
+
+        if (DynamicCompiler.isJava9OrAbove()) {
+            dynamicCompiler.addCompilerOption(DynamicCompilerOption.ADD_EXPORTS, "java.base/java.time=ALL-UNNAMED");
+        }
+        
         dynamicCompiler.addSource("org.dvare.dynamic.SourceTestClass", sourceCode.toString());
         Map<String, Class<?>> compiled = dynamicCompiler.build();
         Class<?> aClass = compiled.get("org.dvare.dynamic.SourceTestClass");
@@ -31,6 +36,7 @@ public class SourceTest {
 ## Current version
 
 * The current stable version is `3.2`
+* The current snapshot version is `3.3-SNAPSHOT`
 
 In order to use snapshot versions, you need to add the following maven repository in your `pom.xml`:
 
