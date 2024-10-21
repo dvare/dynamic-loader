@@ -63,8 +63,10 @@ public class SourceTest {
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler();
         try {
-            Class.forName("com.sun.tools.sjavac.Module"); //if java module present
-            dynamicCompiler.addCompilerOption(DynamicCompilerOption.ADD_EXPORTS, "java.base/java.time=ALL-UNNAMED");
+            if (DynamicCompiler.isJava9OrAbove())//if java module present
+            {
+                dynamicCompiler.addCompilerOption(DynamicCompilerOption.ADD_EXPORTS, "java.base/java.time=ALL-UNNAMED");
+            }
         } catch (Exception ignored) {
         }
         dynamicCompiler.addSource("org.dvare.dynamic.DateUtil", sourceCode);
